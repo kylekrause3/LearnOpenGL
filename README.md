@@ -7,3 +7,6 @@ https://learnopengl.com/
 https://github.com/glfw
 
 https://glad.dav1d.de/
+
+
+all code files are in the \src\ folder
