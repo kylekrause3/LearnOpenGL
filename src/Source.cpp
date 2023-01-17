@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <glad/glad.h> //glad first be sure to include GLAD before other header files that require OpenGL
+#include <glad/glad.h> //glad first be sure to include GLAD before other header files that require OpenGL (ex. glfw)
 #include <GLFW/glfw3.h>
 
 
@@ -70,5 +70,4 @@ void processInput(GLFWwindow *window) {
         glfwSetWindowShouldClose(window, true);
 }
 
-
-//last finished input
+//ONTO: Hello Triangle
