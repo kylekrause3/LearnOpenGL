@@ -195,4 +195,4 @@ void processInput(GLFWwindow *window) {
         glfwSetWindowShouldClose(window, true);
 }
 
-//ONTO: Hello Triangle/element buffer objects
+//ONTO: Shaders
