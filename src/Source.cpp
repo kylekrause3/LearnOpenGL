@@ -6,7 +6,6 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
-void helloTriangle();
 
 
 const char *vertexShaderSource = "#version 330 core\n"
@@ -16,7 +15,7 @@ const char *vertexShaderSource = "#version 330 core\n"
     "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
     "}\0";
 
-const char* fragmentShaderSource = "#version 330 core\n"
+const char *fragmentShaderSource = "#version 330 core\n"
     "out vec4 FragColor;\n"
     "void main()\n"
     "{\n"
@@ -58,24 +57,40 @@ int main()
     //HELLO TRIANGLE:
 
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-         0.0f,  0.5f, 0.0f
+         0.5f,  0.5f, 0.0f,  // top right
+         0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  // bottom left
+        -0.5f,  0.5f, 0.0f   // top left
     };
 
-    unsigned int VBO; //vertex buffer object
+    unsigned int indices[]{
+        0, 1, 3, //triangle 1
+        1, 2, 3  //triangle 2
+    };
+
+    //VBO vertex buffer object, deals with verticies
+    unsigned int VBO;
     glGenBuffers(1, &VBO);
+
+    //EBO element buffer object, deals with indices
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
 
     unsigned int VAO; //vertex array object, contains VBO
     glGenVertexArrays(1, &VAO);
     // 1. bind Vertex Array Object
     glBindVertexArray(VAO);
-    // 2. copy our vertices array in a buffer for OpenGL to use
+    // 2. copy our vertices array in a vertex buffer for OpenGL to use
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    // 3. then set our vertex attributes pointers
+    // 3. copy our index array in a element buffer for OpenGL to use
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    // 4. then set the vertex attributes pointers
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    
 
 
 
@@ -121,7 +136,7 @@ int main()
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
 
-    //last time to check for compile errors
+    //checking if shader program compiles successfully
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
 
     if (!success) {
@@ -153,10 +168,11 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        //hello triangle
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
         // check and call events and swap the buffers: (double buffered)
         glfwSwapBuffers(window);
