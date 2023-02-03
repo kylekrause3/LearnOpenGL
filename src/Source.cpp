@@ -3,22 +3,27 @@
 #include <glad/glad.h> //glad first be sure to include GLAD before other header files that require OpenGL (ex. glfw)
 #include <GLFW/glfw3.h>
 
-#include "../Shader.h"
+#include <./src/Shader.h>
+#include <./src/stb_image.h>
 
+const float PI = 3.1415927;
+const float TAU = 6.2831853;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
 int main()
 {
-    glfwInit(); //initialize glfw
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); 
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
+    #pragma region Initialization
 
+    glfwInit(); //initialize glfw
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    #ifdef __APPLE__
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    #endif
 
     // create glfw window
     GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
@@ -36,17 +41,17 @@ int main()
         return -1;
     }
 
-    Shader ourShader("default.vert", "default.frag");
+    #pragma endregion
 
-    //HELLO TRIANGLE:
+    #pragma region VBO, EBO, VAO
 
     float vertices[] = {
-        //  x      y      z      R      G      B
-        // positions
-         0.5f,  0.5f,  0.0f,  0.0f,  0.0f,  1.0f, // top right
-         0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, // bottom right
-        -0.5f, -0.5f,  0.0f,  0.0f,  1.0f,  0.0f, // bottom left
-        -0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f  // top left
+        //        positions                 colors  texture coords
+        //  x      y      z        R      G      B        s      t
+         0.5f,  0.5f,  0.0f,    0.0f,  0.0f,  1.0f,    1.0f,  1.0f, // top right
+         0.5f, -0.5f,  0.0f,    1.0f,  0.0f,  0.0f,    1.0f,  0.0f, // bottom right
+        -0.5f, -0.5f,  0.0f,    0.0f,  1.0f,  0.0f,    0.0f,  0.0f, // bottom left
+        -0.5f,  0.5f,  0.0f,    1.0f,  0.0f,  0.0f,    0.0f,  1.0f, // top left
     };
 
     unsigned int indices[]{
@@ -73,14 +78,60 @@ int main()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     // 4. then set the vertex attributes pointers
+    
+    // *THIS IS THE STRIDE AND OFFSET STUFF:
+    int stride = 8;
+    //glVertAtPt(index [location], dimensions, dim_type, normalized?, stride, offset)
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    // texture attribute
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    #pragma endregion
+
+    #pragma region textures
+    /* FOR GL_CLAMP_TO_BORDER
+     *
+        float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f }; // must define border color
+        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    */
+
+    // texture wrapping behavior
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // GL_REPEAT on s (x) axis
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // GL_REPEAT on t (y) axis
+
+    // texture zoom filtering behavior
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int tex_width, tex_height, nrChannels;
+    unsigned char* tex_data = stbi_load("./resources/container.jpg", &tex_width, &tex_height, &nrChannels, 0);
+
+    unsigned int textures[1];
+    glGenTextures(1, textures);
+    glBindTexture(GL_TEXTURE_2D, textures[0]);
+
+    if (tex_data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex_data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    
+
+    stbi_image_free(tex_data); // good practice to feree image memory
+
+    #pragma endregion
 
 
+    #pragma region Render Loop
+
+    Shader ourShader("./GLSL/default.vert", "./GLSL/default.frag");
 
     /* RENDER LOOP */
     while (!glfwWindowShouldClose(window))
@@ -101,7 +152,7 @@ int main()
         int vertexColorLocation = glGetUniformLocation(ourShader.ID, "ourColor");
         glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f); // actually set the uniform at location to the color we made
 
-
+        glBindTexture(GL_TEXTURE_2D, textures[0]);
         // draw shapes
         glBindVertexArray(VAO);
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe
@@ -112,7 +163,11 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
+    #pragma endregion
+    
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
     glfwTerminate();
     return 0;
 }
