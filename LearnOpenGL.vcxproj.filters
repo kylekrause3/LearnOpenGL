@@ -32,6 +32,8 @@
     <None Include="GLSL\default.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="GLSL\text_default.vert" />
+    <None Include="GLSL\text_default.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Shader.h">
@@ -48,5 +50,13 @@
     <Image Include="resources\Gravity_Coil.png">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="fonts\calibri.ttf" />
+    <Font Include="fonts\calibrib.ttf" />
+    <Font Include="fonts\calibrii.ttf" />
+    <Font Include="fonts\calibril.ttf" />
+    <Font Include="fonts\calibrili.ttf" />
+    <Font Include="fonts\calibriz.ttf" />
   </ItemGroup>
 </Project>
