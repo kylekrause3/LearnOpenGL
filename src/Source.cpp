@@ -26,6 +26,9 @@ const float TAU = 6.2831853;
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
 float shape_vertices[] = {
     //        positions                 colors  texture coords
     //  x      y      z        R      G      B        s      t
@@ -91,8 +94,6 @@ int main()
     glUniformMatrix4fv(glGetUniformLocation(textShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     
     #pragma region fonts/text
-
-    
 
     FT_Library ft;
     if (FT_Init_FreeType(&ft))
@@ -201,8 +202,12 @@ int main()
     
     #pragma region Render Loop
 
+    float lastTime = 0.0f;
     while (!glfwWindowShouldClose(window))
     {
+        float currentTime = glfwGetTime();
+        float deltaTime = currentTime - lastTime;
+        int fps = (int)(1 / deltaTime);
         // input: [stay at top]
         processInput(window);
 
@@ -230,12 +235,14 @@ int main()
 
 
         //text();
-        RenderText(textShader, "FUCK YOU", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
-        RenderText(textShader, "top right :p", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
+        RenderText(textShader, "hello!", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+        RenderText(textShader, std::to_string(fps), (SCR_WIDTH - 60) + 0.0f, (SCR_HEIGHT - 30) + 0.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
 
         // check and call events and swap the buffers: (double buffered) [stay at bottom]
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        lastTime = currentTime;
     }
     #pragma endregion
 
