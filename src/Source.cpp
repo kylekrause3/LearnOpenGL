@@ -32,10 +32,10 @@ float lastFrame = 0.0f;
 float shape_vertices[] = {
     //        positions                 colors  texture coords
     //  x      y      z        R      G      B        s      t
-     0.5f,  0.5f,  0.0f,    0.0f,  0.0f,  1.0f,    1.0f,  1.0f, // top right
-     0.5f, -0.5f,  0.0f,    1.0f,  0.0f,  0.0f,    1.0f,  0.0f, // bottom right
-    -0.5f, -0.5f,  0.0f,    0.0f,  1.0f,  0.0f,    0.0f,  0.0f, // bottom left
-    -0.5f,  0.5f,  0.0f,    1.0f,  0.0f,  0.0f,    0.0f,  1.0f, // top left
+     0.5f,  0.5f,  0.0f,    1.0f,  0.0f,  0.0f,    1.0f,  1.0f, // top right
+     0.5f, -0.5f,  0.0f,    0.0f,  1.0f,  0.0f,    1.0f,  0.0f, // bottom right
+    -0.5f, -0.5f,  0.0f,    0.0f,  0.0f,  1.0f,    0.0f,  0.0f, // bottom left
+    -0.5f,  0.5f,  0.0f,    1.0f,  1.0f,  0.0f,    0.0f,  1.0f, // top left
 };
 
 unsigned int indices[]{
@@ -87,6 +87,7 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     #pragma endregion
+    Shader ourShader("./GLSL/default.vert", "./GLSL/default.frag");
 
     Shader textShader("./GLSL/text_default.vert", "./GLSL/text_default.frag");
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
@@ -161,7 +162,7 @@ int main()
 
     #pragma endregion
     
-    Shader ourShader("./GLSL/default.vert", "./GLSL/default.frag");
+    
 
     shape();
 
@@ -170,23 +171,24 @@ int main()
 
     //float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f }; // must define border color
     //glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    
+    unsigned int texture1, texture2;
+    int tex_width, tex_height, nrChannels;
+    unsigned char* tex_data;
+    stbi_set_flip_vertically_on_load(true);
 
-
+    // texture 1
+    // ---------
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1);
     // texture wrapping behavior
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // GL_REPEAT on s (x) axis
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // GL_REPEAT on t (y) axis
-
     // texture zoom filtering behavior
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
-    int tex_width, tex_height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char* tex_data = stbi_load("./resources/container.jpg", &tex_width, &tex_height, &nrChannels, 0);
-
-    unsigned int texture1, texture2;
-    glGenTextures(1, &texture1);
-    glBindTexture(GL_TEXTURE_2D, texture1);
+    tex_data = stbi_load("./resources/container.jpg", &tex_width, &tex_height, &nrChannels, 0);
 
     if (tex_data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex_data);
@@ -195,10 +197,21 @@ int main()
     else {
         std::cout << "Failed to load texture" << std::endl;
     }
-    stbi_image_free(tex_data);
+    stbi_image_free(tex_data); // free image memory
 
+    // texture 2
+    // ---------
     glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+    // texture wrapping behavior
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // GL_REPEAT on s (x) axis
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // GL_REPEAT on t (y) axis
+    // texture zoom filtering behavior
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     tex_data = stbi_load("./resources/Gravity_Coil.png", &tex_width, &tex_height, &nrChannels, 0);
+
     if (tex_data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_data);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -206,17 +219,16 @@ int main()
     else {
         std::cout << "Failed to load texture" << std::endl;
     }
-
-    stbi_image_free(tex_data); // good practice to free image memory
-
+    stbi_image_free(tex_data); // free image memory
     #pragma endregion
     
     #pragma region Render Loop
     ourShader.use(); // don't forget to activate/use the shader before setting uniforms!
     // either set it manually like so:
     glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
+    glUniform1i(glGetUniformLocation(ourShader.ID, "texture2"), 1);
     // or set it via the texture class
-    ourShader.setInt("texture2", 1);
+    // ourShader.setInt("texture2", 1);
 
 
     float lastTime = 0.0f;
