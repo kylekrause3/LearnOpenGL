@@ -76,7 +76,11 @@ int main()
         return -1;
     }
     glfwMakeContextCurrent(window);
+    glfwSwapInterval(0); // vsync off
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // diaable cursor
 
     // glad: load all OpenGL function pointers
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -180,6 +184,7 @@ int main()
     // texture 1
     // ---------
     glGenTextures(1, &texture1);
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture1);
     // texture wrapping behavior
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // GL_REPEAT on s (x) axis
@@ -202,6 +207,7 @@ int main()
     // texture 2
     // ---------
     glGenTextures(1, &texture2);
+    glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture2);
     // texture wrapping behavior
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // GL_REPEAT on s (x) axis
@@ -257,8 +263,7 @@ int main()
         //float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
         //int vertexColorLocation = glGetUniformLocation(ourShader.ID, "ourColor");
         //glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f); // actually set the uniform at location to the color we made
-
-        glBindTexture(GL_TEXTURE_2D, texture1);
+        
         // draw shapes
         glBindVertexArray(VAO);
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe
