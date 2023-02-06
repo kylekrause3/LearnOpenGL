@@ -179,13 +179,14 @@ int main()
     // texture zoom filtering behavior
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+    
     int tex_width, tex_height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
     unsigned char* tex_data = stbi_load("./resources/container.jpg", &tex_width, &tex_height, &nrChannels, 0);
 
-    unsigned int textures[1];
-    glGenTextures(1, textures);
-    glBindTexture(GL_TEXTURE_2D, textures[0]);
+    unsigned int texture1, texture2;
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1);
 
     if (tex_data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex_data);
@@ -194,13 +195,29 @@ int main()
     else {
         std::cout << "Failed to load texture" << std::endl;
     }
+    stbi_image_free(tex_data);
 
+    glGenTextures(1, &texture2);
+    tex_data = stbi_load("./resources/Gravity_Coil.png", &tex_width, &tex_height, &nrChannels, 0);
+    if (tex_data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else {
+        std::cout << "Failed to load texture" << std::endl;
+    }
 
-    stbi_image_free(tex_data); // good practice to feree image memory
+    stbi_image_free(tex_data); // good practice to free image memory
 
     #pragma endregion
     
     #pragma region Render Loop
+    ourShader.use(); // don't forget to activate/use the shader before setting uniforms!
+    // either set it manually like so:
+    glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
+    // or set it via the texture class
+    ourShader.setInt("texture2", 1);
+
 
     float lastTime = 0.0f;
     while (!glfwWindowShouldClose(window))
@@ -215,18 +232,21 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         //rendering commands here:
-
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
         
         // activate shader
         ourShader.use();
 
         // update the uniform color
-        float timeValue = glfwGetTime();
-        float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-        int vertexColorLocation = glGetUniformLocation(ourShader.ID, "ourColor");
-        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f); // actually set the uniform at location to the color we made
+        //float timeValue = glfwGetTime();
+        //float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+        //int vertexColorLocation = glGetUniformLocation(ourShader.ID, "ourColor");
+        //glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f); // actually set the uniform at location to the color we made
 
-        glBindTexture(GL_TEXTURE_2D, textures[0]);
+        glBindTexture(GL_TEXTURE_2D, texture1);
         // draw shapes
         glBindVertexArray(VAO);
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe
