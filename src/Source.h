@@ -17,9 +17,12 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void RenderText(Shader& shader, std::string text, float x, float y, float scale, glm::vec3 color);
-void text();
-void shape();
+void gen_geom_buffers();
+void gen_text_buffers();
+void load_text();
 GLFWwindow* create_window();
+void terminate();
+unsigned int* load_textures();
 
 const float PI = 3.1415927;
 const float TAU = 6.2831853;

@@ -38,6 +38,7 @@
     <Image Include="resources\awesomeface.png" />
     <Image Include="resources\container.jpg" />
     <Image Include="resources\Gravity_Coil.png" />
+    <Image Include="resources\worms_andrew.png" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="fonts\calibri.ttf" />

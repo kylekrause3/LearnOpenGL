@@ -56,6 +56,9 @@
     <Image Include="resources\awesomeface.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="resources\worms_andrew.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Font Include="fonts\calibri.ttf" />
