@@ -1,27 +1,4 @@
-#include <iostream>
-#include <map>
-
-#include <glad/glad.h> //glad first be sure to include GLAD before other header files that require OpenGL (ex. glfw)
-#include <GLFW/glfw3.h>
-
-#include <./src/Shader.h>
-#include <./src/stb_image.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window);
-void RenderText(Shader& shader, std::string text, float x, float y, float scale, glm::vec3 color);
-void text();
-void shape();
-
-const float PI = 3.1415927;
-const float TAU = 6.2831853;
+#include <./src/Source.h>
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -41,7 +18,7 @@ float shape_vertices[] = {
 unsigned int indices[]{
     0, 1, 3, //triangle 1
     1, 2, 3  //triangle 2
-}; 
+};
 
 /// Holds all state information relevant to a character as loaded using FreeType
 struct Character {
@@ -57,19 +34,8 @@ unsigned int VAO, VBO, EBO, VAO_text, VBO_text;
 
 int main()
 {
-    #pragma region Initialization
-
-    glfwInit(); //initialize glfw
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    #ifdef __APPLE__
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    #endif
-
+    GLFWwindow* window = create_window();
     // create glfw window
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -90,7 +56,7 @@ int main()
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    #pragma endregion
+
     Shader ourShader("./GLSL/default.vert", "./GLSL/default.frag");
 
     Shader textShader("./GLSL/text_default.vert", "./GLSL/text_default.frag");
@@ -302,6 +268,19 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+}
+
+GLFWwindow* create_window() {
+    glfwInit(); //initialize glfw
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    #ifdef __APPLE__
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    #endif
+
+    return glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
 }
 
 void text() {

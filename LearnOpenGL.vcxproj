@@ -32,6 +32,7 @@
   <ItemGroup>
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\debug.h" />
+    <ClInclude Include="src\Source.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\awesomeface.png" />
