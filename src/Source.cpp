@@ -72,7 +72,7 @@ int main() {
     load_text();
     load_textures();
     
-    gen_geom_buffers();
+    gen_geometry_buffers();
     
     #pragma region Render Loop
     ourShader.use(); // don't forget to activate/use the shader before setting uniforms!
@@ -104,7 +104,7 @@ int main() {
         
         // activate shader
         ourShader.use();
-
+        do_transformations(ourShader);
         // update the uniform color
         //float timeValue = glfwGetTime();
         //float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
@@ -166,7 +166,7 @@ void terminate() {
     glfwTerminate();
 }
 
-void gen_geom_buffers() {
+void gen_geometry_buffers() {
     //VBO vertex buffer object, deals with verticies
     glGenBuffers(1, &VBO);
 
@@ -336,6 +336,14 @@ unsigned int* load_textures() {
     return result;
 }
 
+float deg2rad(float x) {
+    return x * (PI / 180);
+}
+
+float rad2deg(float x) {
+    return x * (180 / PI);
+}
+
 void RenderText(Shader& shader, std::string text, float x, float y, float scale, glm::vec3 color)
 {
     // activate corresponding render state	
@@ -380,4 +388,32 @@ void RenderText(Shader& shader, std::string text, float x, float y, float scale,
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
-// ONTO: Shaders
+
+void do_transformations(Shader &ourShader) {
+    ourShader.use();
+
+    //glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+    glm::mat4 trans = glm::mat4(1.0f); //identity matrix
+    trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+    trans = glm::rotate(trans, deg2rad(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
+    //trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
+    //vec = trans * vec;
+
+    //std::cout << vec.x << " " << vec.y << " " << vec.z << std::endl;
+
+
+    /*unsigned int transformUniLoc = glGetUniformLocation(ourShader.ID, "transform");
+    glUniformMatrix4fv(transformUniLoc, 1, GL_FALSE, glm::value_ptr(trans));*/
+
+    unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+}
+
+void do_projections(Shader &ourShader) {
+    ourShader.use();
+
+    //glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+    
+}
+// ONTO: coordinate systems / projections
