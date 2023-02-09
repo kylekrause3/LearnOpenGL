@@ -15,6 +15,50 @@ float shape_vertices[] = {
     -0.5f,  0.5f,  0.0f,    1.0f,  1.0f,  0.0f,    0.0f,  1.0f, // top left
 };
 
+float cube_vertices[] = {
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+};
+
 unsigned int indices[]{
     0, 1, 3, //triangle 1
     1, 2, 3  //triangle 2
@@ -69,10 +113,14 @@ int main() {
 
     #pragma endregion
     
-    load_text();
+    load_text("./fonts/calibri.ttf");
     load_textures();
     
-    gen_geometry_buffers();
+    //gen_geometry_buffers(float verts[], int positions, int colors, int textures)
+    //gen_geometry_buffers(shape_vertices, sizeof(shape_vertices), 3, 3, 2);
+
+    gen_geometry_buffers(cube_vertices, sizeof(cube_vertices), {3, 2});
+
     
     #pragma region Render Loop
     ourShader.use(); // don't forget to activate/use the shader before setting uniforms!
@@ -104,6 +152,9 @@ int main() {
         
         // activate shader
         ourShader.use();
+        perspectiveProjection(ourShader);
+
+        
         do_transformations(ourShader);
         // update the uniform color
         //float timeValue = glfwGetTime();
@@ -115,12 +166,12 @@ int main() {
         glBindVertexArray(VAO);
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        //glBindVertexArray(0);
 
 
         //text();
-        RenderText(textShader, "hello!", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
-        RenderText(textShader, std::to_string(fps), (SCR_WIDTH - 60) + 0.0f, (SCR_HEIGHT - 30) + 0.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
+        RenderText(textShader, "Kyle Krause OpenGL 3.3", 25.0f, 25.0f, 0.5f, glm::vec3(0.5, 0.5, 0.5));
+        RenderText(textShader, std::to_string(fps), (SCR_WIDTH - 60) + 0.0f, (SCR_HEIGHT - 30) + 0.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 
         // check and call events and swap the buffers: (double buffered) [stay at bottom]
         glfwSwapBuffers(window);
@@ -166,7 +217,7 @@ void terminate() {
     glfwTerminate();
 }
 
-void gen_geometry_buffers() {
+void gen_geometry_buffers(float *verts, float verts_size, int *dimensions) {
     //VBO vertex buffer object, deals with verticies
     glGenBuffers(1, &VBO);
 
@@ -179,24 +230,32 @@ void gen_geometry_buffers() {
     glBindVertexArray(VAO);
     // 2. copy our vertices array in a vertex buffer for OpenGL to use
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(shape_vertices), shape_vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, verts_size, verts, GL_STATIC_DRAW);
     // 3. copy our index array in a element buffer for OpenGL to use
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     // 4. then set the vertex attributes pointers
 
     // *THIS IS THE STRIDE AND OFFSET STUFF:
-    int stride = 8;
-    //glVertAtPt(index [location], dimensions, dim_type, normalized?, stride, offset)
+    int stride = 0;
+    for (int i = 0; i < sizeof(dimensions) / sizeof(dimensions[0]); i++) {
+        stride += dimensions[i];
+    }
+    //glVertAtPt(index (location in shader), dimensions, dim_type, normalized?, stride, offset)
+
+    for (int i = 0; i < sizeof(dimensions) / sizeof(dimensions[0]); i++) {
+        glVertexAttribPointer(0, dimensions[i], GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(i);
+    }
+    
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    
     // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float)));
+    /*glVertexAttribPointer(1, colors, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     // texture attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, textures, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);*/
 }
 
 void gen_text_buffers() {
@@ -211,7 +270,7 @@ void gen_text_buffers() {
     glBindVertexArray(0);
 }
 
-void load_text() {
+void load_text(const char* font) {
     FT_Library ft;
     if (FT_Init_FreeType(&ft))
     {
@@ -220,7 +279,7 @@ void load_text() {
     }
 
     FT_Face face;
-    if (FT_New_Face(ft, "./fonts/calibri.ttf", 0, &face))
+    if (FT_New_Face(ft, font, 0, &face))
     {
         std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
         terminate();
@@ -389,25 +448,42 @@ void RenderText(Shader& shader, std::string text, float x, float y, float scale,
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void do_transformations(Shader &ourShader) {
+void perspectiveProjection(Shader& ourShader) {
     ourShader.use();
 
-    //glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-    glm::mat4 trans = glm::mat4(1.0f); //identity matrix
-    trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-    trans = glm::rotate(trans, deg2rad(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
-    //trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
-    //vec = trans * vec;
+    // view matrix translates world space coordinates to camera view space
+    int viewUniformLocation = glGetUniformLocation(ourShader.ID, "view");
+    glm::mat4 view = glm::mat4(1.0f);
+    // note that we're translating the scene in the reverse direction of where we want to move
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
-    //std::cout << vec.x << " " << vec.y << " " << vec.z << std::endl;
+    // projection matrix translates camera view space to clip space
+    int projectionUniformLocation = glGetUniformLocation(ourShader.ID, "projection");
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+
+    glUniformMatrix4fv(viewUniformLocation, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(projectionUniformLocation, 1, GL_FALSE, glm::value_ptr(projection));
+}
+
+void do_transformations(Shader &ourShader) {
+    // model matrix translates local object vertices into world space coordinates
+    int modelUniformLocation = glGetUniformLocation(ourShader.ID, "model");
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    
+    ourShader.use();
+
+    model = glm::translate(model, glm::vec3(0, 0, 0));
+
+    //model = glm::rotate(model, deg2rad(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    // rotation over time
+    model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5, 1, 0));
 
 
-    /*unsigned int transformUniLoc = glGetUniformLocation(ourShader.ID, "transform");
-    glUniformMatrix4fv(transformUniLoc, 1, GL_FALSE, glm::value_ptr(trans));*/
+    //model = glm::scale(model, glm::vec3(0.5f, 1.0f, 0.3f));
 
-    unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
-    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+    glUniformMatrix4fv(modelUniformLocation, 1, GL_FALSE, glm::value_ptr(model));
 }
 
 void do_projections(Shader &ourShader) {

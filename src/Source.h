@@ -17,14 +17,15 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void RenderText(Shader& shader, std::string text, float x, float y, float scale, glm::vec3 color);
-void gen_geometry_buffers();
+void gen_geometry_buffers(float* verts, float verts_size, int* dimensions);
 void gen_text_buffers();
-void load_text();
+void load_text(const char* font);
 GLFWwindow* create_window();
 void terminate();
 unsigned int* load_textures();
 float deg2rad(float x);
 float rad2deg(float x);
+void perspectiveProjection(Shader& ourShader);
 void do_transformations(Shader& ourShader);
 void do_projections(Shader& ourShader);
 

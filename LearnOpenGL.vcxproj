@@ -47,6 +47,20 @@
     <Font Include="fonts\calibril.ttf" />
     <Font Include="fonts\calibrili.ttf" />
     <Font Include="fonts\calibriz.ttf" />
+    <Font Include="fonts\RuneScape Fonts\OldschoolRuneScape-Chat-07.ttf" />
+    <Font Include="fonts\RuneScape Fonts\OldschoolRuneScape-Chat-Bold-07.ttf" />
+    <Font Include="fonts\RuneScape Fonts\Oldschoolrunescape_npc_chat.ttf" />
+    <Font Include="fonts\RuneScape Fonts\runescape_chat.ttf" />
+    <Font Include="fonts\RuneScape Fonts\runescape_chat_bold.ttf" />
+    <Font Include="fonts\RuneScape Fonts\runescape_chat_bold_2.ttf" />
+    <Font Include="fonts\RuneScape Fonts\runescape_friends_list.ttf" />
+    <Font Include="fonts\RuneScape Fonts\runescape_large.ttf" />
+    <Font Include="fonts\RuneScape Fonts\runescape_npc_chat_2.ttf" />
+    <Font Include="fonts\RuneScape Fonts\runescape_small.ttf" />
+    <Font Include="fonts\RuneScape Fonts\runescape_smooth_chat.ttf" />
+    <Font Include="fonts\RuneScape Fonts\runescape_smooth_chat_bold_2.ttf" />
+    <Font Include="fonts\RuneScape Fonts\runescape_smooth_large.ttf" />
+    <Font Include="fonts\RuneScape Fonts\runescape_uf.ttf" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
