@@ -26,7 +26,7 @@ unsigned int* load_textures();
 float deg2rad(float x);
 float rad2deg(float x);
 void perspectiveProjection(Shader& ourShader);
-void do_transformations(Shader& ourShader);
+void do_transformations(Shader& ourShader, glm::mat4& model);
 void do_projections(Shader& ourShader);
 
 const float PI = 3.1415927;

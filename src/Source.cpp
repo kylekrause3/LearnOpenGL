@@ -133,9 +133,18 @@ int main() {
     ourShader.setInt("texture1", 0);
     ourShader.setInt("texture2", 1);
 
-    //set uniforms manual
-    //glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
-    //glUniform1i(glGetUniformLocation(ourShader.ID, "texture2"), 1);
+    glm::vec3 cubePositions[] = {
+        glm::vec3(0.0f,  0.0f,  0.0f),
+        glm::vec3(2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),
+        glm::vec3(1.5f,  2.0f, -2.5f),
+        glm::vec3(1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
 
     float lastTime = 0.0f;
     while (!glfwWindowShouldClose(window))
@@ -160,7 +169,7 @@ int main() {
         perspectiveProjection(ourShader);
 
 
-        do_transformations(ourShader);
+        
         // update the uniform color
         //float timeValue = glfwGetTime();
         //float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
@@ -169,11 +178,22 @@ int main() {
 
         // draw shapes
         glBindVertexArray(VAO);
+        for (int i = 0; i < sizeof(cubePositions) / sizeof(cubePositions[0]); i++) {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i;
+            model = glm::rotate(model, deg2rad(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+
+            do_transformations(ourShader, model);
+
+            int modelUniformLocation = glGetUniformLocation(ourShader.ID, "model");
+            glUniformMatrix4fv(modelUniformLocation, 1, GL_FALSE, glm::value_ptr(model));
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+        
+        
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); FOR EBO
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        
-        
         
         glBindVertexArray(0);
 
@@ -469,17 +489,14 @@ void perspectiveProjection(Shader& ourShader) {
     glUniformMatrix4fv(projectionUniformLocation, 1, GL_FALSE, glm::value_ptr(projection));
 }
 
-void do_transformations(Shader& ourShader) {
+void do_transformations(Shader& ourShader, glm::mat4 &model) {
     // model matrix translates local object vertices into world space coordinates
     int modelUniformLocation = glGetUniformLocation(ourShader.ID, "model");
-    glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
     ourShader.use();
 
     model = glm::translate(model, glm::vec3(0, 0, 0));
-
-    //model = glm::rotate(model, deg2rad(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
     // rotation over time
     model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5, 1, 0));
