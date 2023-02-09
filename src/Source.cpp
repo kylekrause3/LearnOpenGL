@@ -79,7 +79,7 @@ unsigned int VAO, VBO, EBO, VAO_text, VBO_text;
 unsigned int texture1, texture2;
 
 int main() {
-    #pragma region initialization
+#pragma region initialization
 
     GLFWwindow* window = create_window();
     // create glfw window
@@ -111,18 +111,18 @@ int main() {
     textShader.use();
     glUniformMatrix4fv(glGetUniformLocation(textShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-    #pragma endregion
-    
+#pragma endregion
+
     load_text("./fonts/calibri.ttf");
     load_textures();
-    
+
     //gen_geometry_buffers(float verts[], int positions, int colors, int textures)
     //gen_geometry_buffers(shape_vertices, sizeof(shape_vertices), 3, 3, 2);
+    int dimensions[] = { 3, 0, 2 };  // position, color, texture
+    gen_geometry_buffers(cube_vertices, sizeof(cube_vertices), dimensions, sizeof(dimensions));
 
-    gen_geometry_buffers(cube_vertices, sizeof(cube_vertices), {3, 2});
 
-    
-    #pragma region Render Loop
+#pragma region Render Loop
     ourShader.use(); // don't forget to activate/use the shader before setting uniforms!
     // set uniforms via class:
     ourShader.setInt("texture1", 0);
@@ -149,19 +149,19 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
-        
+
         // activate shader
         ourShader.use();
         perspectiveProjection(ourShader);
 
-        
+
         do_transformations(ourShader);
         // update the uniform color
         //float timeValue = glfwGetTime();
         //float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
         //int vertexColorLocation = glGetUniformLocation(ourShader.ID, "ourColor");
         //glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f); // actually set the uniform at location to the color we made
-        
+
         // draw shapes
         glBindVertexArray(VAO);
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe
@@ -179,7 +179,7 @@ int main() {
 
         lastTime = currentTime;
     }
-    #pragma endregion
+#pragma endregion
 
     terminate();
     return 0;
@@ -201,9 +201,9 @@ GLFWwindow* create_window() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    #ifdef __APPLE__
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    #endif
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
     return glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
 }
@@ -217,13 +217,12 @@ void terminate() {
     glfwTerminate();
 }
 
-void gen_geometry_buffers(float *verts, float verts_size, int *dimensions) {
+void gen_geometry_buffers(float* verts, float verts_size, int* dimensions, int dimensions_size) {
     //VBO vertex buffer object, deals with verticies
     glGenBuffers(1, &VBO);
 
     //EBO element buffer object, deals with indices
     glGenBuffers(1, &EBO);
-
     //vertex array object, contains VBO
     glGenVertexArrays(1, &VAO);
     // 1. bind Vertex Array Object
@@ -237,19 +236,20 @@ void gen_geometry_buffers(float *verts, float verts_size, int *dimensions) {
     // 4. then set the vertex attributes pointers
 
     // *THIS IS THE STRIDE AND OFFSET STUFF:
+    int dim_length = dimensions_size / sizeof(dimensions[0]);
     int stride = 0;
-    for (int i = 0; i < sizeof(dimensions) / sizeof(dimensions[0]); i++) {
+    for (int i = 0; i < dim_length; i++) {
         stride += dimensions[i];
     }
     //glVertAtPt(index (location in shader), dimensions, dim_type, normalized?, stride, offset)
 
-    for (int i = 0; i < sizeof(dimensions) / sizeof(dimensions[0]); i++) {
+    for (int i = 0; i < dim_length; i++) {
         glVertexAttribPointer(0, dimensions[i], GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
         glEnableVertexAttribArray(i);
     }
-    
+
     // position attribute
-    
+
     // color attribute
     /*glVertexAttribPointer(1, colors, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
@@ -395,13 +395,9 @@ unsigned int* load_textures() {
     return result;
 }
 
-float deg2rad(float x) {
-    return x * (PI / 180);
-}
+float deg2rad(float x) { return x * (PI / 180); }
 
-float rad2deg(float x) {
-    return x * (180 / PI);
-}
+float rad2deg(float x) { return x * (180 / PI); }
 
 void RenderText(Shader& shader, std::string text, float x, float y, float scale, glm::vec3 color)
 {
@@ -465,12 +461,12 @@ void perspectiveProjection(Shader& ourShader) {
     glUniformMatrix4fv(projectionUniformLocation, 1, GL_FALSE, glm::value_ptr(projection));
 }
 
-void do_transformations(Shader &ourShader) {
+void do_transformations(Shader& ourShader) {
     // model matrix translates local object vertices into world space coordinates
     int modelUniformLocation = glGetUniformLocation(ourShader.ID, "model");
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    
+
     ourShader.use();
 
     model = glm::translate(model, glm::vec3(0, 0, 0));
@@ -486,10 +482,10 @@ void do_transformations(Shader &ourShader) {
     glUniformMatrix4fv(modelUniformLocation, 1, GL_FALSE, glm::value_ptr(model));
 }
 
-void do_projections(Shader &ourShader) {
+void do_projections(Shader& ourShader) {
     ourShader.use();
 
     //glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
-    
+
 }
 // ONTO: coordinate systems / projections
