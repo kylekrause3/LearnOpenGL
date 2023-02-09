@@ -12,6 +12,12 @@ void main()
     //80% of first input texture, 20% of second
     FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.5); 
     //FragColor = texture(texture2, TexCoord) - texture(texture1, TexCoord);
-    FragColor *= vec4(vertexColor, 1.0);
-    
+    FragColor += vec4(0, 0, 0, 1);
+
+    if(vertexColor != vec3(0, 0, 0)){
+        FragColor *= vec4(vertexColor, 1);
+    }
+    else {
+        FragColor *= vec4(0.3, 1, 0.3, 1);
+    }
 }

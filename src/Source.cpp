@@ -59,10 +59,10 @@ float cube_vertices[] = {
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
 
-unsigned int indices[]{
+/*unsigned int indices[] = {
     0, 1, 3, //triangle 1
     1, 2, 3  //triangle 2
-};
+};*/
 
 /// Holds all state information relevant to a character as loaded using FreeType
 struct Character {
@@ -111,6 +111,9 @@ int main() {
     textShader.use();
     glUniformMatrix4fv(glGetUniformLocation(textShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
+
+    glEnable(GL_DEPTH_TEST);
+
 #pragma endregion
 
     load_text("./fonts/calibri.ttf");
@@ -118,8 +121,10 @@ int main() {
 
     //gen_geometry_buffers(float verts[], int positions, int colors, int textures)
     //gen_geometry_buffers(shape_vertices, sizeof(shape_vertices), 3, 3, 2);
-    int dimensions[] = { 3, 0, 2 };  // position, color, texture
-    gen_geometry_buffers(cube_vertices, sizeof(cube_vertices), dimensions, sizeof(dimensions));
+
+    float dims[] = {3, 0 , 2};
+    //gen_geometry_buffers(shape_vertices, sizeof(shape_vertices), dims, sizeof(dims));
+    gen_geometry_buffers(cube_vertices, sizeof(cube_vertices), dims, sizeof(dims));
 
 
 #pragma region Render Loop
@@ -143,7 +148,7 @@ int main() {
 
         //background color
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
         //rendering commands here:
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
@@ -165,8 +170,12 @@ int main() {
         // draw shapes
         glBindVertexArray(VAO);
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        //glBindVertexArray(0);
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); FOR EBO
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        
+        
+        
+        glBindVertexArray(0);
 
 
         //text();
@@ -217,12 +226,12 @@ void terminate() {
     glfwTerminate();
 }
 
-void gen_geometry_buffers(float* verts, float verts_size, int* dimensions, int dimensions_size) {
+void gen_geometry_buffers(float *verts, float verts_size, float *dimensions, float dimensions_size) {
     //VBO vertex buffer object, deals with verticies
     glGenBuffers(1, &VBO);
 
     //EBO element buffer object, deals with indices
-    glGenBuffers(1, &EBO);
+    //glGenBuffers(1, &EBO);
     //vertex array object, contains VBO
     glGenVertexArrays(1, &VAO);
     // 1. bind Vertex Array Object
@@ -231,31 +240,30 @@ void gen_geometry_buffers(float* verts, float verts_size, int* dimensions, int d
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, verts_size, verts, GL_STATIC_DRAW);
     // 3. copy our index array in a element buffer for OpenGL to use
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     // 4. then set the vertex attributes pointers
 
     // *THIS IS THE STRIDE AND OFFSET STUFF:
-    int dim_length = dimensions_size / sizeof(dimensions[0]);
+    
+    //glVertAtPt(index (location in shader), dimensions, dim_type, normalized?, stride, offset)
     int stride = 0;
-    for (int i = 0; i < dim_length; i++) {
+
+    int i;
+    int dimensions_length = dimensions_size / sizeof(dimensions[0]);
+    for (i = 0; i < dimensions_length; i++) {
         stride += dimensions[i];
     }
-    //glVertAtPt(index (location in shader), dimensions, dim_type, normalized?, stride, offset)
 
-    for (int i = 0; i < dim_length; i++) {
-        glVertexAttribPointer(0, dimensions[i], GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(i);
+    int lastOffset = 0;
+    for (i = 0; i < dimensions_length; i++) {
+        if (dimensions[i] != 0) {
+            glVertexAttribPointer(i, dimensions[i], GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(lastOffset * sizeof(float)));
+            glEnableVertexAttribArray(i);
+        }
+
+        lastOffset += dimensions[i];
     }
-
-    // position attribute
-
-    // color attribute
-    /*glVertexAttribPointer(1, colors, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    // texture attribute
-    glVertexAttribPointer(2, textures, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);*/
 }
 
 void gen_text_buffers() {
