@@ -146,12 +146,28 @@ int main() {
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
+    glm::vec3 cameraPosition(0, 0, 0);
+    glm::vec3 cameraTarget(0, 0, 0);
+    // direction is actually pointing in the reverse direction that the camera is pointing
+    glm::vec3 cameraDirection = glm::normalize(cameraPosition - cameraTarget);
+
+    glm::vec3 cameraRight = glm::normalize(glm::cross(UP, cameraDirection));
+    glm::vec3 cameraUp = glm::normalize(glm::cross(cameraDirection, cameraRight));
+
+    // takes in position, target, and up vector
+    glm::mat4 view = glm::lookAt(
+        glm::vec3(),
+        glm::vec3(),
+        UP
+    );
+    
     float lastTime = 0.0f;
     while (!glfwWindowShouldClose(window))
     {
         float currentTime = glfwGetTime();
         float deltaTime = currentTime - lastTime;
         int fps = (int)(1 / deltaTime);
+        lastTime = currentTime;
         // input: [stay at top]
         processInput(window);
 
@@ -206,7 +222,7 @@ int main() {
         glfwSwapBuffers(window);
         glfwPollEvents();
 
-        lastTime = currentTime;
+        
     }
 #pragma endregion
 

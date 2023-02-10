@@ -31,3 +31,5 @@ void do_projections(Shader& ourShader);
 
 const float PI = 3.1415927;
 const float TAU = 6.2831853;
+
+const glm::vec3 UP(0, 1, 0);
