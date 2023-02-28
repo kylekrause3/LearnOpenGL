@@ -14,7 +14,10 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+// method prototypes
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 void RenderText(Shader& shader, std::string text, float x, float y, float scale, glm::vec3 color);
 void gen_geometry_buffers(float* verts, float verts_size, float* dimensions, float dimensions_size);
@@ -33,3 +36,8 @@ const float PI = 3.1415927;
 const float TAU = 6.2831853;
 
 const glm::vec3 UP(0, 1, 0);
+const glm::vec3 DOWN(0, -1, 0);
+const glm::vec3 RIGHT(1, 0, 0);
+const glm::vec3 LEFT(-1, 0, 0);
+const glm::vec3 FORWARD(0, 0, -1);
+const glm::vec3 BACKWARD(0, 0, 1);
