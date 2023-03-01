@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include <./src/Shader.h>
+#include <./src/Camera.h>
 #include <./src/stb_image.h>
 
 #include <glm/glm.hpp>
@@ -35,9 +36,9 @@ void do_projections(Shader& ourShader);
 const float PI = 3.1415927;
 const float TAU = 6.2831853;
 
-const glm::vec3 UP(0, 1, 0);
-const glm::vec3 DOWN(0, -1, 0);
-const glm::vec3 RIGHT(1, 0, 0);
-const glm::vec3 LEFT(-1, 0, 0);
-const glm::vec3 FORWARD(0, 0, -1);
-const glm::vec3 BACKWARD(0, 0, 1);
+const glm::vec3 WORLD_UP(0, 1, 0);
+const glm::vec3 WORLD_DOWN(0, -1, 0);
+const glm::vec3 WORLD_RIGHT(1, 0, 0);
+const glm::vec3 WORLD_LEFT(-1, 0, 0);
+const glm::vec3 WORLD_FORWARD(0, 0, -1);
+const glm::vec3 WORLD_BACKWARD(0, 0, 1);

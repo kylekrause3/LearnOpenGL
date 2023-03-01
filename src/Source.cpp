@@ -79,15 +79,20 @@ unsigned int VAO, VBO, EBO, VAO_text, VBO_text;
 
 unsigned int texture1, texture2;
 
-glm::vec3 cameraPosition(0.0f, 0.0f, 0.0f);
-glm::vec3 cameraDirection(0.0f, 0.0f, 0.0f);
-float fov = 45.0f;
-
-// pitch (up/down, x),  yaw (left/right, y), roll (clockwise/counter-clockwise, z)
-glm::vec3 cameraRotation(0, 0, 0);
-
+// camera
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+//glm::vec3 cameraPosition(0.0f, 0.0f, 0.0f);
+//glm::vec3 cameraDirection(0.0f, 0.0f, 0.0f);
+//float fov = 45.0f;
+//
+//// pitch (up/down, x),  yaw (left/right, y), roll (clockwise/counter-clockwise, z)
+//glm::vec3 cameraRotation(0, 0, 0);
+//
 // used in mouse_callback() to record inital x and y values of mouse on program startup
 bool firstMouse = true; 
+//
+//glm::vec3 camera_up = WORLD_UP;
+//glm::vec3 camera_right = WORLD_RIGHT;
 
 int main() {
 #pragma region initialization
@@ -103,6 +108,7 @@ int main() {
     glfwSwapInterval(0); // vsync off
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     if (glfwRawMouseMotionSupported())
@@ -202,18 +208,7 @@ int main() {
         cameraPosition.x = cameraX;
         cameraPosition.z = cameraZ;*/
 
-        // CAMERA TRANSLATION
-        cameraDirection.x = cos(glm::radians(cameraRotation.y)) * cos(glm::radians(cameraRotation.x));
-        cameraDirection.y = sin(glm::radians(cameraRotation.x));
-        cameraDirection.z = sin(glm::radians(cameraRotation.y)) * cos(glm::radians(cameraRotation.x));
-        cameraDirection = glm::normalize(cameraDirection);
-        // takes in position, target, and up vector
-        glm::mat4 view = glm::lookAt(
-            cameraPosition,             // put the camera here
-            cameraPosition + glm::normalize(cameraDirection),   // face it this way
-            UP                          // no idea
-        );
-
+        glm::mat4 view = camera.GetViewMatrix();
         ourShader.setMat4("view", view);
         
 
@@ -278,26 +273,16 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     /*float lastX = xpos;
     float lastY = ypos;*/
 
-    float sensitivity = 0.1f;
+    float sensitivity = 0.5f;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
-    cameraRotation.y += xoffset; // yaw
-    cameraRotation.x += yoffset; // pitch
-
-    if (cameraRotation.x > 89.0f)
-        cameraRotation.x = 89.0f;
-    if (cameraRotation.x < -89.0f)
-        cameraRotation.x = -89.0f;
+    camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    fov -= (float)yoffset;
-    if (fov < 1.0f)
-        fov = 1.0f;
-    if (fov > 45.0f)
-        fov = 45.0f;
+    camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 
@@ -307,24 +292,23 @@ void processInput(GLFWwindow* window) {
         glfwSetWindowShouldClose(window, true);
     }
 
-    const float cameraSpeed = 2.5 * deltaTime; // adjust accordingly
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cameraPosition += cameraSpeed * FORWARD;
+        camera.ProcessKeyboard(FORWARD, deltaTime);
     }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
-        cameraPosition += cameraSpeed * BACKWARD;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
     }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
-        cameraPosition += cameraSpeed * LEFT;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        camera.ProcessKeyboard(LEFT, deltaTime);
     }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
-        cameraPosition += cameraSpeed * RIGHT;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        camera.ProcessKeyboard(RIGHT, deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        cameraPosition += cameraSpeed * UP;
+        camera.ProcessKeyboard(UP, deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-        cameraPosition += cameraSpeed * DOWN;
+        camera.ProcessKeyboard(DOWN, deltaTime);
     }
 }
 
@@ -587,7 +571,7 @@ void perspectiveProjection(Shader& ourShader) {
 
     // projection matrix translates camera view space to clip space
     int projectionUniformLocation = glGetUniformLocation(ourShader.ID, "projection");
-    glm::mat4 projection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
     glUniformMatrix4fv(viewUniformLocation, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projectionUniformLocation, 1, GL_FALSE, glm::value_ptr(projection));
