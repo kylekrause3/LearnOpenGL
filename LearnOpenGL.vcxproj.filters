@@ -85,4 +85,7 @@
     <Font Include="fonts\RuneScape Fonts\runescape_smooth_large.ttf" />
     <Font Include="fonts\RuneScape Fonts\runescape_uf.ttf" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="resources\KeyMacros.txt" />
+  </ItemGroup>
 </Project>
