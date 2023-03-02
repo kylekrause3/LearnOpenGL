@@ -1,0 +1,3 @@
+SET SHADER DATA DIRECTLY:
+int location = glGetUniformLocation(ourShader.ID, "NAME");
+glUniform4f(location, x, y, z, a);

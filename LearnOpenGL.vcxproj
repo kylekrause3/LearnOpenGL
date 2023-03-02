@@ -24,8 +24,12 @@
     <ClCompile Include="src\stb_image_implementation.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="GLSL\cube_lighting.frag" />
+    <None Include="GLSL\cube_lighting.vert" />
     <None Include="GLSL\default.frag" />
     <None Include="GLSL\default.vert" />
+    <None Include="GLSL\lighting.frag" />
+    <None Include="GLSL\lighting.vert" />
     <None Include="GLSL\text_default.frag" />
     <None Include="GLSL\text_default.vert" />
   </ItemGroup>
@@ -34,6 +38,7 @@
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\debug.h" />
     <ClInclude Include="src\Source.h" />
+    <ClInclude Include="src\verts.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\awesomeface.png" />
@@ -64,6 +69,7 @@
     <Font Include="fonts\RuneScape Fonts\runescape_uf.ttf" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="Notes.txt" />
     <Text Include="resources\KeyMacros.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

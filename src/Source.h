@@ -1,6 +1,8 @@
 #include <iostream>
 #include <map>
 
+#include <./src/verts.h>
+
 #include <glad/glad.h> //glad first be sure to include GLAD before other header files that require OpenGL (ex. glfw)
 #include <GLFW/glfw3.h>
 
@@ -26,7 +28,7 @@ void gen_text_buffers();
 void load_text(const char* font);
 GLFWwindow* create_window();
 void terminate();
-unsigned int* load_textures();
+void load_textures();
 float deg2rad(float x);
 float rad2deg(float x);
 void perspectiveProjection(Shader& ourShader);

@@ -34,6 +34,10 @@
     </None>
     <None Include="GLSL\text_default.vert" />
     <None Include="GLSL\text_default.frag" />
+    <None Include="GLSL\lighting.frag" />
+    <None Include="GLSL\lighting.vert" />
+    <None Include="GLSL\cube_lighting.frag" />
+    <None Include="GLSL\cube_lighting.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Shader.h">
@@ -46,6 +50,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\verts.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -87,5 +94,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="resources\KeyMacros.txt" />
+    <Text Include="Notes.txt" />
   </ItemGroup>
 </Project>

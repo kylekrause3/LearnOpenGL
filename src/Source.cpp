@@ -1,71 +1,18 @@
 #include <./src/Source.h>
 
+// settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 800;
 
+
+// timing
 float currentTime = 0.0f;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-float shape_vertices[] = {
-    //        positions                 colors  texture coords
-    //  x      y      z        R      G      B        s      t
-     0.5f,  0.5f,  0.0f,    1.0f,  0.0f,  0.0f,    1.0f,  1.0f, // top right
-     0.5f, -0.5f,  0.0f,    0.0f,  1.0f,  0.0f,    1.0f,  0.0f, // bottom right
-    -0.5f, -0.5f,  0.0f,    0.0f,  0.0f,  1.0f,    0.0f,  0.0f, // bottom left
-    -0.5f,  0.5f,  0.0f,    1.0f,  1.0f,  0.0f,    0.0f,  1.0f, // top left
-};
+unsigned int VAO, VBO, EBO, VAO_text, VBO_text;
 
-float cube_vertices[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-};
-
-/*unsigned int indices[] = {
-    0, 1, 3, //triangle 1
-    1, 2, 3  //triangle 2
-};*/
-
-// Holds all state information relevant to a character as loaded using FreeType
+// FreeType Character state information
 struct Character {
     unsigned int TextureID; // ID handle of the glyph texture
     glm::ivec2   Size;      // Size of glyph
@@ -73,26 +20,13 @@ struct Character {
     unsigned int Advance;   // Horizontal offset to advance to next glyph
 };
 
+// Holds all characters
 std::map<GLchar, Character> Characters;
-
-unsigned int VAO, VBO, EBO, VAO_text, VBO_text;
 
 unsigned int texture1, texture2;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-//glm::vec3 cameraPosition(0.0f, 0.0f, 0.0f);
-//glm::vec3 cameraDirection(0.0f, 0.0f, 0.0f);
-//float fov = 45.0f;
-//
-//// pitch (up/down, x),  yaw (left/right, y), roll (clockwise/counter-clockwise, z)
-//glm::vec3 cameraRotation(0, 0, 0);
-//
-// used in mouse_callback() to record inital x and y values of mouse on program startup
-bool firstMouse = true; 
-//
-//glm::vec3 camera_up = WORLD_UP;
-//glm::vec3 camera_right = WORLD_RIGHT;
 
 int main() {
 #pragma region initialization
@@ -122,28 +56,28 @@ int main() {
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_DEPTH_TEST);
 
     Shader ourShader("./GLSL/default.vert", "./GLSL/default.frag");
-
     Shader textShader("./GLSL/text_default.vert", "./GLSL/text_default.frag");
+    Shader lightingShader("./GLSL/lighting.vert", "./GLSL/lighting.frag");
+    Shader lightCubeShader("./GLSL/cube_lighting.vert", "./GLSL/cube_lighting.frag");
+
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
     textShader.use();
     glUniformMatrix4fv(glGetUniformLocation(textShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
-
-    glEnable(GL_DEPTH_TEST);
-
+    load_text("./fonts/calibri.ttf");
 
 #pragma endregion
-
-    load_text("./fonts/calibri.ttf");
-    load_textures();
+    
+    //load_textures();
 
     //gen_geometry_buffers(float verts[], int positions, int colors, int textures)
     //gen_geometry_buffers(shape_vertices, sizeof(shape_vertices), 3, 3, 2);
 
-    float dims[] = {3, 0, 2};
+    float dims[] = {3, 0, 0};
     //gen_geometry_buffers(shape_vertices, sizeof(shape_vertices), dims, sizeof(dims));
+    //gen_geometry_buffers(cube_vertices_with_textures, sizeof(cube_vertices_with_textures), dims, sizeof(dims));
     gen_geometry_buffers(cube_vertices, sizeof(cube_vertices), dims, sizeof(dims));
 
 
@@ -165,17 +99,6 @@ int main() {
         glm::vec3(1.5f,  0.2f, -1.5f),
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
-
-
-    //glm::vec3 cameraTarget(0, 0, 0);
-    //// direction is actually the reverse direction that the camera is pointing
-    //glm::vec3 cameraDirection = glm::normalize(cameraPosition - cameraTarget);
-
-    //glm::vec3 cameraRight = glm::normalize(glm::cross(UP, cameraDirection));
-    //glm::vec3 cameraUp = glm::normalize(glm::cross(cameraDirection, cameraRight));
-
-    
-    
     
     float lastTime = 0.0f;
     while (!glfwWindowShouldClose(window))
@@ -187,38 +110,27 @@ int main() {
         // input: [stay at top]
         processInput(window);
 
-        //background color
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-        //rendering commands here:
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-
         // activate shader
         ourShader.use();
         perspectiveProjection(ourShader);
 
-        //camera
-        /*const float orbitRadius = 10.0f;
-        float cameraX = sin(currentTime) * orbitRadius;
-        float cameraZ = cos(currentTime) * orbitRadius;
-
-        cameraPosition.x = cameraX;
-        cameraPosition.z = cameraZ;*/
-
+        // camera
         glm::mat4 view = camera.GetViewMatrix();
         ourShader.setMat4("view", view);
-        
 
-
+        // render:
+        //background color
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
         
-        // update the uniform color
-        //float timeValue = glfwGetTime();
-        //float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-        //int vertexColorLocation = glGetUniformLocation(ourShader.ID, "ourColor");
-        //glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f); // actually set the uniform at location to the color we made
+        //commenting out in colors section, because load_textures() is no longer called
+        /*
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+        */
+        
 
         // draw shapes
         glBindVertexArray(VAO);
@@ -285,30 +197,47 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
+bool ESC_pressed, LCTRL_pressed, LSHIFT_pressed;
+bool W_pressed, A_pressed, S_pressed, D_pressed;
+bool UP_pressed, DOWN_pressed;
+bool SPACE_pressed;
 
 void processInput(GLFWwindow* window) {
+    ESC_pressed     = glfwGetKey(window, GLFW_KEY_ESCAPE)       == GLFW_PRESS;
+    W_pressed       = glfwGetKey(window, GLFW_KEY_W)            == GLFW_PRESS;
+    S_pressed       = glfwGetKey(window, GLFW_KEY_S)            == GLFW_PRESS;
+    A_pressed       = glfwGetKey(window, GLFW_KEY_A)            == GLFW_PRESS;
+    D_pressed       = glfwGetKey(window, GLFW_KEY_D)            == GLFW_PRESS;
+    UP_pressed      = glfwGetKey(window, GLFW_KEY_UP)           == GLFW_PRESS;
+    DOWN_pressed    = glfwGetKey(window, GLFW_KEY_DOWN)         == GLFW_PRESS;
+    SPACE_pressed   = glfwGetKey(window, GLFW_KEY_SPACE)        == GLFW_PRESS;
+    LCTRL_pressed   = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
+    LSHIFT_pressed  = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)   == GLFW_PRESS;
 
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    if (ESC_pressed) {
         glfwSetWindowShouldClose(window, true);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    if (W_pressed) {
         camera.ProcessKeyboard(FORWARD, deltaTime);
     }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    if (S_pressed) {
         camera.ProcessKeyboard(BACKWARD, deltaTime);
     }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    if (A_pressed) {
         camera.ProcessKeyboard(LEFT, deltaTime);
     }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    if (D_pressed) {
         camera.ProcessKeyboard(RIGHT, deltaTime);
     }
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+    if (UP_pressed || SPACE_pressed) {
         camera.ProcessKeyboard(UP, deltaTime);
     }
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+    if (DOWN_pressed || LCTRL_pressed) {
         camera.ProcessKeyboard(DOWN, deltaTime);
+    }
+    if (LSHIFT_pressed) {
+        camera.ProcessKeyboard(MODIFIER, deltaTime);
     }
 }
 
@@ -452,7 +381,7 @@ void load_text(const char* font) {
     gen_text_buffers();
 }
 
-unsigned int* load_textures() {
+void load_textures() {
     //FOR GL_CLAMP_TO_BORDER
 
     //float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f }; // must define border color
@@ -506,9 +435,6 @@ unsigned int* load_textures() {
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(tex_data); // free image memory
-
-    unsigned int result[] = { texture1, texture2 };
-    return result;
 }
 
 float deg2rad(float x) { return x * (PI / 180); }
