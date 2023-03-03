@@ -54,6 +54,8 @@
     <None Include="GLSL\lighting_casters_point.frag" />
     <None Include="GLSL\lighting_casters_spotlight.frag" />
     <None Include="GLSL\lighting_multiple.frag" />
+    <None Include="GLSL\model.vert" />
+    <None Include="GLSL\model.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Shader.h">

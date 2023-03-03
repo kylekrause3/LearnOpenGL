@@ -18,6 +18,8 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include <./src/Model.h>
+
 // method prototypes
 
 void process_input(GLFWwindow* window);

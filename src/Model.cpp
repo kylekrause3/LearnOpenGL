@@ -1,15 +1,5 @@
 #include <./src/Model.h>
 
-Model::Model(char* path) 
-{
-
-}
-
-void Model::Draw(Shader& shader) 
-{
-
-}
-
 void Model::loadModel(std::string path) 
 {
     Assimp::Importer import;

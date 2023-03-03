@@ -37,38 +37,15 @@ int main() {
     if (glfwRawMouseMotionSupported()) {
         glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     }
+    stbi_set_flip_vertically_on_load(true);
 
-    Shader ourShader("./GLSL/default.vert", "./GLSL/default.frag");
-    Shader lightingShader("./GLSL/lighting.vert", "./GLSL/lighting_multiple.frag");
-    Shader lightCubeShader("./GLSL/cube_lighting.vert", "./GLSL/cube_lighting.frag");
 
-    texture1 = load_texture("./resources/container2.png");
-    texture2 = load_texture("./resources/container2_specular.png");
 
     Text calibri("./fonts/calibri.ttf", SCR_WIDTH, SCR_HEIGHT);
 
-    float dims[] = {3, 3, 2};
-    gen_geometry_buffers(cube_vertices_with_normals_textures, sizeof(cube_vertices_with_normals_textures), dims, sizeof(dims), VAO, VBO, EBO);
-    gen_geometry_buffers(cube_vertices_with_normals_textures, sizeof(cube_vertices_with_normals_textures), dims, sizeof(dims), lightCubeVAO, VBO, EBO);
-    
-    lightingShader.use();
-    // tell lighting frag shader that TEXTURE0 is diffuse, TEXTURE1 is ambient
-    lightingShader.setInt("material.diffuse", 0);
-    lightingShader.setInt("material.specular", 1);
+    Shader modelShader("./GLSL/model.vert", "./GLSL/model.frag");
 
-
-    glm::vec3 cubePositions[] = {
-        glm::vec3(0.0f,  0.0f,  0.0f),
-        glm::vec3(2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3(2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f,  3.0f, -7.5f),
-        glm::vec3(1.3f, -2.0f, -2.5f),
-        glm::vec3(1.5f,  2.0f, -2.5f),
-        glm::vec3(1.5f,  0.2f, -1.5f),
-        glm::vec3(-1.3f,  1.0f, -1.5f)
-    };
+    Model backpack("../3dModels/backpack/backpack.obj");
 
     glm::vec3 pointLightPositions[] = {
         glm::vec3(0.7f,  0.2f,  2.0f),
@@ -90,7 +67,7 @@ int main() {
         process_input(window);
 
         // activate shader
-        ourShader.use();
+        /*ourShader.use();
         perspective_projection(ourShader);
 
         // camera
@@ -98,9 +75,7 @@ int main() {
         ourShader.setMat4("view", view);
 
         // render:
-        //background color
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+        
         
 
         glm::mat4 model;
@@ -195,17 +170,29 @@ int main() {
             lightCubeShader.setMat4("model", model);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
-        
+        }*/
+        //background color
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        
-        
+        modelShader.use();
+        perspective_projection(modelShader);
+        // camera
+        glm::mat4 view = camera.GetViewMatrix();
+        modelShader.setMat4("view", view);
+
+        // render the loaded model
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        modelShader.setMat4("model", model);
+        backpack.Draw(modelShader);
         
 
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); FOR EBO
         
-        glBindVertexArray(0);  
+        // glBindVertexArray(0);  
 
         //text();
         calibri.render_text("Kyle Krause OpenGL 3.3", 25.0f, 25.0f, 0.5f, glm::vec3(0.5, 0.5, 0.5));

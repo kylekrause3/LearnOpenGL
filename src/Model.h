@@ -22,11 +22,19 @@
 class Model
 {
 public:
+    Model(const char* path)
+    {
+        loadModel(path);
+    }
     Model(char* path)
     {
         loadModel(path);
     }
-    void Draw(Shader& shader);
+    void Draw(Shader& shader) 
+    {
+        for (unsigned int i = 0; i < meshes.size(); i++)
+            meshes[i].Draw(shader);
+    }
 private:
     // model data
     std::vector<Mesh> meshes;
