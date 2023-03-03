@@ -39,7 +39,7 @@ int main() {
     }
 
     Shader ourShader("./GLSL/default.vert", "./GLSL/default.frag");
-    Shader lightingShader("./GLSL/lighting.vert", "./GLSL/lighting.frag");
+    Shader lightingShader("./GLSL/lighting.vert", "./GLSL/lighting_casters_spotlight.frag");
     Shader lightCubeShader("./GLSL/cube_lighting.vert", "./GLSL/cube_lighting.frag");
 
     texture1 = load_texture("./resources/container2.png");
@@ -56,11 +56,25 @@ int main() {
     lightingShader.setInt("material.diffuse", 0);
     lightingShader.setInt("material.specular", 1);
 
+
+    glm::vec3 cubePositions[] = {
+        glm::vec3(0.0f,  0.0f,  0.0f),
+        glm::vec3(2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),
+        glm::vec3(1.5f,  2.0f, -2.5f),
+        glm::vec3(1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
+
+
     float lastTime = 0.0f;
 
     while (!glfwWindowShouldClose(window))
     {
-#pragma region Loop Head
         currentTime = glfwGetTime();
         deltaTime   = currentTime - lastTime;
         int fps     = (int)(1 / deltaTime);
@@ -81,14 +95,28 @@ int main() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
         
-        
-
-#pragma endregion
 
         glm::mat4 model;
         
         lightingShader.use();
-        lightingShader.setVec3("light.position", lightPos);
+        lightingShader.setVec3("light.position", lightPos); // light map
+        //lightingShader.setVec3("light.direction", -0.2f, -1.0f, -0.3f); // directional light
+
+        //// point light:
+        //lightingShader.setVec3("light.position", lightPos);
+        //lightingShader.setFloat("light.constant", 1.0f);
+        //lightingShader.setFloat("light.linear", 0.09f);
+        //lightingShader.setFloat("light.quadratic", 0.032f);
+
+        // spotlight:
+        lightingShader.setVec3("light.position", camera.Position);
+        lightingShader.setVec3("light.direction", camera.Front);
+        lightingShader.setFloat("light.cutOff", glm::cos(glm::radians(8.5f)));
+        lightingShader.setFloat("light.outerCutOff", glm::cos(glm::radians(12.5f)));
+        lightingShader.setFloat("light.constant", 1.0f);
+        lightingShader.setFloat("light.linear", 0.09f);
+        lightingShader.setFloat("light.quadratic", 0.032f);
+
         lightingShader.setVec3("viewPos", camera.Position);
         
         // material properties
@@ -125,7 +153,17 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, texture2);
 
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (int i = 0; i < sizeof(cubePositions) / sizeof(cubePositions[0]); i++) {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i;
+            model = glm::rotate(model, deg2rad(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+
+            //do_transformations(lightingShader, model);
+
+            lightingShader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
         
         lightCubeShader.use();
         perspective_projection(lightCubeShader);

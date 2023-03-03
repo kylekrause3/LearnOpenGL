@@ -40,10 +40,13 @@
     </None>
     <None Include="GLSL\text_default.vert" />
     <None Include="GLSL\text_default.frag" />
-    <None Include="GLSL\lighting.frag" />
+    <None Include="GLSL\lighting_maps.frag" />
     <None Include="GLSL\lighting.vert" />
     <None Include="GLSL\cube_lighting.frag" />
     <None Include="GLSL\cube_lighting.vert" />
+    <None Include="GLSL\lighting_casters_directional.frag" />
+    <None Include="GLSL\lighting_casters_point.frag" />
+    <None Include="GLSL\lighting_casters_spotlight.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Shader.h">

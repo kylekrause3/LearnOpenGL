@@ -30,7 +30,10 @@
     <None Include="GLSL\cube_lighting.vert" />
     <None Include="GLSL\default.frag" />
     <None Include="GLSL\default.vert" />
-    <None Include="GLSL\lighting.frag" />
+    <None Include="GLSL\lighting_casters_directional.frag" />
+    <None Include="GLSL\lighting_casters_point.frag" />
+    <None Include="GLSL\lighting_casters_spotlight.frag" />
+    <None Include="GLSL\lighting_maps.frag" />
     <None Include="GLSL\lighting.vert" />
     <None Include="GLSL\text_default.frag" />
     <None Include="GLSL\text_default.vert" />
