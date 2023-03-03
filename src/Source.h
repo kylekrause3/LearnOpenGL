@@ -1,14 +1,13 @@
 #include <iostream>
 #include <map>
 
-#include <./src/verts.h>
-
 #include <glad/glad.h> //glad first be sure to include GLAD before other header files that require OpenGL (ex. glfw)
 #include <GLFW/glfw3.h>
 
 #include <./src/Shader.h>
 #include <./src/Camera.h>
 #include <./src/Text.h>
+#include <./src/verts.h>
 
 #include <./src/stb_image.h>
 
@@ -28,7 +27,7 @@ void clear_glfw();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void gen_geometry_buffers(float* verts, float verts_size, float* dimensions, float dimensions_size);
+void gen_geometry_buffers(float* verts, float verts_size, float* dimensions, float dimensions_size, unsigned int& VAO, unsigned int& VBO, unsigned int& EBO);
 void load_textures();
 void perspective_projection(Shader& ourShader);
 void do_transformations(Shader& ourShader, glm::mat4& model);

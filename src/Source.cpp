@@ -1,4 +1,7 @@
 #include <./src/Source.h>
+#pragma region Pre-lighting 0
+
+
 
 // settings
 const unsigned int SCR_WIDTH    = 800;
@@ -10,15 +13,21 @@ float currentTime   = 0.0f;
 float deltaTime     = 0.0f;
 float lastFrame     = 0.0f;
 
-unsigned int VAO, VBO, EBO;
+unsigned int VAO, VBO, EBO, lightCubeVAO;
 
 unsigned int texture1, texture2;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+#pragma endregion
+
+// lighting
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 int main() {
-#pragma region initialization
+#pragma region Pre-lighting 1
+
+
 
     GLFWwindow* window = create_window();
     // create glfw window
@@ -41,44 +50,22 @@ int main() {
     Shader lightingShader("./GLSL/lighting.vert", "./GLSL/lighting.frag");
     Shader lightCubeShader("./GLSL/cube_lighting.vert", "./GLSL/cube_lighting.frag");
 
-    
-
-#pragma endregion
-
     Text calibri("./fonts/calibri.ttf", SCR_WIDTH, SCR_HEIGHT);
     //load_textures();
 
-    //gen_geometry_buffers(float verts[], int positions, int colors, int textures)
-    //gen_geometry_buffers(shape_vertices, sizeof(shape_vertices), 3, 3, 2);
-
-    float dims[] = {3, 0, 0};
-    //gen_geometry_buffers(shape_vertices, sizeof(shape_vertices), dims, sizeof(dims));
-    //gen_geometry_buffers(cube_vertices_with_textures, sizeof(cube_vertices_with_textures), dims, sizeof(dims));
-    gen_geometry_buffers(cube_vertices, sizeof(cube_vertices), dims, sizeof(dims));
-
-
-#pragma region Render Loop
-    ourShader.use(); // don't forget to activate/use the shader before setting uniforms!
-    // set uniforms via class:
-    ourShader.setInt("texture1", 0);
-    ourShader.setInt("texture2", 1);
-
-    glm::vec3 cubePositions[] = {
-        glm::vec3( 0.0f,  0.0f,   0.0f),
-        glm::vec3( 2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f,  -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3( 2.4f, -0.4f,  -3.5f),
-        glm::vec3(-1.7f,  3.0f,  -7.5f),
-        glm::vec3( 1.3f, -2.0f,  -2.5f),
-        glm::vec3( 1.5f,  2.0f,  -2.5f),
-        glm::vec3( 1.5f,  0.2f,  -1.5f),
-        glm::vec3(-1.3f,  1.0f,  -1.5f)
-    };
+    float dims[] = {3, 3, 0, 0};
+    gen_geometry_buffers(cube_vertices_with_normals, sizeof(cube_vertices_with_normals), dims, sizeof(dims), VAO, VBO, EBO);
+    gen_geometry_buffers(cube_vertices_with_normals, sizeof(cube_vertices_with_normals), dims, sizeof(dims), lightCubeVAO, VBO, EBO);
     
     float lastTime = 0.0f;
+#pragma endregion
+
     while (!glfwWindowShouldClose(window))
     {
+#pragma region Pre-lighting 2
+
+
+
         currentTime = glfwGetTime();
         deltaTime   = currentTime - lastTime;
         int fps     = (int)(1 / deltaTime);
@@ -106,29 +93,63 @@ int main() {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
         */
-        
+        // also draw the lamp object
+#pragma endregion
 
-        // draw shapes
+        glm::mat4 model;
+        
+        lightingShader.use();
+        lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+        lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3("lightPos", lightPos);
+        lightingShader.setVec3("viewPos", camera.Position);
+
+        lightingShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+        lightingShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+        lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+        lightingShader.setFloat("material.shininess", 32.0f);
+
+        glm::vec3 lightColor;
+        lightColor.x = sin(glfwGetTime() * 2.0f);
+        lightColor.y = sin(glfwGetTime() * 0.7f);
+        lightColor.z = sin(glfwGetTime() * 1.3f);
+
+        glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
+        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+
+        lightingShader.setVec3("light.ambient", ambientColor);
+        lightingShader.setVec3("light.diffuse", diffuseColor);
+
+        lightingShader.setMat4("view", view);
+        perspective_projection(lightingShader);
+
+        // draw shapes, model matrix is what takes care of movement
+        // world transformation
+        model = glm::mat4(1.0f);
+        lightingShader.setMat4("model", model);
+
         glBindVertexArray(VAO);
-        for (int i = 0; i < sizeof(cubePositions) / sizeof(cubePositions[0]); i++) {
-            glm::mat4 model = glm::mat4(1.0f);
-            model           = glm::translate(model, cubePositions[i]);
-            float angle     = 20.0f * i;
-            model           = glm::rotate(model, deg2rad(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-
-            do_transformations(ourShader, model);
-
-            ourShader.setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        glDrawArrays(GL_TRIANGLES, 0, 36);
         
+        lightCubeShader.use();
+        perspective_projection(lightCubeShader);
+        lightCubeShader.setMat4("view", view);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, lightPos);
+        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+        lightCubeShader.setMat4("model", model);
+
+        glBindVertexArray(lightCubeVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
         
+
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); FOR EBO
         
-        glBindVertexArray(0);
+        glBindVertexArray(0);  
 
-        
+#pragma region Pre-lighting 3
+
 
 
         //text();
@@ -139,13 +160,15 @@ int main() {
         glfwSwapBuffers(window);
         glfwPollEvents();
 
-        
-    }
 #pragma endregion
+    }
 
     clear_glfw();
     return 0;
 }
+
+#pragma region Pre-lighting 4
+
 
 bool ESC_pressed, LCTRL_pressed, LSHIFT_pressed;
 bool W_pressed, A_pressed, S_pressed, D_pressed;
@@ -258,7 +281,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
-void gen_geometry_buffers(float *verts, float verts_size, float *dimensions, float dimensions_size) {
+void gen_geometry_buffers(float *verts, float verts_size, float *dimensions, float dimensions_size, unsigned int &VAO, unsigned int& VBO, unsigned int &EBO) {
     //VBO vertex buffer object, deals with verticies
     glGenBuffers(1, &VBO);
 
@@ -355,19 +378,11 @@ void load_textures()
     stbi_image_free(tex_data); // free image memory
 }
 
-void perspective_projection(Shader& ourShader) {
-    ourShader.use();
-
-    // view matrix translates world space coordinates to camera view space
-    glm::mat4 view = glm::mat4(1.0f);
-    // note that we're translating the scene in the reverse direction of where we want to move
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
+void perspective_projection(Shader& shader) {
+    shader.use();
     // projection matrix translates camera view space to clip space
     glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-
-    ourShader.setMat4("view", view);
-    ourShader.setMat4("projection", projection);
+    shader.setMat4("projection", projection);
 }
 
 void do_transformations(Shader& ourShader, glm::mat4 &model) {
@@ -384,3 +399,4 @@ void do_transformations(Shader& ourShader, glm::mat4 &model) {
     //model = glm::scale(model, glm::vec3(0.5f, 1.0f, 0.3f));
     ourShader.setMat4("model", model);
 }
+#pragma endregion
