@@ -35,6 +35,7 @@
     <None Include="GLSL\lighting_casters_spotlight.frag" />
     <None Include="GLSL\lighting_maps.frag" />
     <None Include="GLSL\lighting.vert" />
+    <None Include="GLSL\lighting_multiple.frag" />
     <None Include="GLSL\text_default.frag" />
     <None Include="GLSL\text_default.vert" />
   </ItemGroup>

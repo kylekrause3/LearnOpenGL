@@ -34,7 +34,7 @@ uniform Light light;
 
 void main()
 {
-    vec3 lightDir = normalize(light.position - FragPos);
+vec3 lightDir = normalize(light.position - FragPos);
     float theta = dot(lightDir, normalize(-light.direction));
     float epsilon   = light.cutOff - light.outerCutOff;
     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
