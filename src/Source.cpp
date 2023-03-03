@@ -1,14 +1,14 @@
 #include <./src/Source.h>
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 800;
+const unsigned int SCR_WIDTH    = 800;
+const unsigned int SCR_HEIGHT   = 800;
 
 
 // timing
-float currentTime = 0.0f;
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
+float currentTime   = 0.0f;
+float deltaTime     = 0.0f;
+float lastFrame     = 0.0f;
 
 unsigned int VAO, VBO, EBO, VAO_text, VBO_text;
 
@@ -23,7 +23,7 @@ struct Character {
 // Holds all characters
 std::map<GLchar, Character> Characters;
 
-unsigned int texture1, texture2;
+unsigned int        texture1, texture2;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -45,13 +45,15 @@ int main() {
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    if (glfwRawMouseMotionSupported())
+    if (glfwRawMouseMotionSupported()) {
         glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    }
+        
 
     // glad: load all OpenGL function pointers
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
+        std::cout   << "Failed to initialize GLAD" << std::endl;
+        return      -1;
     }
 
     glEnable(GL_BLEND);
@@ -88,25 +90,25 @@ int main() {
     ourShader.setInt("texture2", 1);
 
     glm::vec3 cubePositions[] = {
-        glm::vec3(0.0f,  0.0f,  0.0f),
-        glm::vec3(2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3( 0.0f,  0.0f,   0.0f),
+        glm::vec3( 2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f,  -2.5f),
         glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3(2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f,  3.0f, -7.5f),
-        glm::vec3(1.3f, -2.0f, -2.5f),
-        glm::vec3(1.5f,  2.0f, -2.5f),
-        glm::vec3(1.5f,  0.2f, -1.5f),
-        glm::vec3(-1.3f,  1.0f, -1.5f)
+        glm::vec3( 2.4f, -0.4f,  -3.5f),
+        glm::vec3(-1.7f,  3.0f,  -7.5f),
+        glm::vec3( 1.3f, -2.0f,  -2.5f),
+        glm::vec3( 1.5f,  2.0f,  -2.5f),
+        glm::vec3( 1.5f,  0.2f,  -1.5f),
+        glm::vec3(-1.3f,  1.0f,  -1.5f)
     };
     
     float lastTime = 0.0f;
     while (!glfwWindowShouldClose(window))
     {
         currentTime = glfwGetTime();
-        deltaTime = currentTime - lastTime;
-        int fps = (int)(1 / deltaTime);
-        lastTime = currentTime;
+        deltaTime   = currentTime - lastTime;
+        int fps     = (int)(1 / deltaTime);
+        lastTime    = currentTime;
         // input: [stay at top]
         processInput(window);
 
@@ -136,9 +138,9 @@ int main() {
         glBindVertexArray(VAO);
         for (int i = 0; i < sizeof(cubePositions) / sizeof(cubePositions[0]); i++) {
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            float angle = 20.0f * i;
-            model = glm::rotate(model, deg2rad(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            model           = glm::translate(model, cubePositions[i]);
+            float angle     = 20.0f * i;
+            model           = glm::rotate(model, deg2rad(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 
             do_transformations(ourShader, model);
 
@@ -180,14 +182,14 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     glfwSetCursorPos(window, SCR_WIDTH / 2, SCR_HEIGHT / 2);
 
-    float xoffset = xpos - (SCR_WIDTH / 2);
+    float xoffset =             xpos - (SCR_WIDTH / 2);
     float yoffset = (SCR_HEIGHT / 2) - ypos;
     /*float lastX = xpos;
     float lastY = ypos;*/
 
-    float sensitivity = 0.5f;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
+    float sensitivity    = 0.5f;
+    xoffset             *= sensitivity;
+    yoffset             *= sensitivity;
 
     camera.ProcessMouseMovement(xoffset, yoffset);
 }
