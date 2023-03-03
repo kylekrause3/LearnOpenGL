@@ -28,7 +28,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void gen_geometry_buffers(float* verts, float verts_size, float* dimensions, float dimensions_size, unsigned int& VAO, unsigned int& VBO, unsigned int& EBO);
-void load_textures();
+unsigned int load_texture(const char* path);
 void perspective_projection(Shader& ourShader);
 void do_transformations(Shader& ourShader, glm::mat4& model);
 

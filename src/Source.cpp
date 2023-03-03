@@ -1,7 +1,4 @@
 #include <./src/Source.h>
-#pragma region Pre-lighting 0
-
-
 
 // settings
 const unsigned int SCR_WIDTH    = 800;
@@ -19,16 +16,11 @@ unsigned int texture1, texture2;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-#pragma endregion
 
 // lighting
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 int main() {
-#pragma region Pre-lighting 1
-
-
-
     GLFWwindow* window = create_window();
     // create glfw window
     if (window == NULL) {
@@ -50,22 +42,25 @@ int main() {
     Shader lightingShader("./GLSL/lighting.vert", "./GLSL/lighting.frag");
     Shader lightCubeShader("./GLSL/cube_lighting.vert", "./GLSL/cube_lighting.frag");
 
-    Text calibri("./fonts/calibri.ttf", SCR_WIDTH, SCR_HEIGHT);
-    //load_textures();
+    texture1 = load_texture("./resources/container2.png");
+    texture2 = load_texture("./resources/container2_specular.png");
 
-    float dims[] = {3, 3, 0, 0};
-    gen_geometry_buffers(cube_vertices_with_normals, sizeof(cube_vertices_with_normals), dims, sizeof(dims), VAO, VBO, EBO);
-    gen_geometry_buffers(cube_vertices_with_normals, sizeof(cube_vertices_with_normals), dims, sizeof(dims), lightCubeVAO, VBO, EBO);
+    Text calibri("./fonts/calibri.ttf", SCR_WIDTH, SCR_HEIGHT);
+
+    float dims[] = {3, 3, 2};
+    gen_geometry_buffers(cube_vertices_with_normals_textures, sizeof(cube_vertices_with_normals_textures), dims, sizeof(dims), VAO, VBO, EBO);
+    gen_geometry_buffers(cube_vertices_with_normals_textures, sizeof(cube_vertices_with_normals_textures), dims, sizeof(dims), lightCubeVAO, VBO, EBO);
     
+    lightingShader.use();
+    // tell lighting frag shader that TEXTURE0 is diffuse, TEXTURE1 is ambient
+    lightingShader.setInt("material.diffuse", 0);
+    lightingShader.setInt("material.specular", 1);
+
     float lastTime = 0.0f;
-#pragma endregion
 
     while (!glfwWindowShouldClose(window))
     {
-#pragma region Pre-lighting 2
-
-
-
+#pragma region Loop Head
         currentTime = glfwGetTime();
         deltaTime   = currentTime - lastTime;
         int fps     = (int)(1 / deltaTime);
@@ -86,39 +81,33 @@ int main() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
         
-        //commenting out in colors section, because load_textures() is no longer called
-        /*
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-        */
-        // also draw the lamp object
+        
+
 #pragma endregion
 
         glm::mat4 model;
         
         lightingShader.use();
-        lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-        lightingShader.setVec3("lightPos", lightPos);
+        lightingShader.setVec3("light.position", lightPos);
         lightingShader.setVec3("viewPos", camera.Position);
+        
+        // material properties
+        lightingShader.setFloat("material.shininess", 64.0f);
 
-        lightingShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
-        lightingShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
-        lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
-        lightingShader.setFloat("material.shininess", 32.0f);
+        //glm::vec3 lightColor;
+        //lightColor.x = sin(glfwGetTime() * 2.0f);
+        //lightColor.y = sin(glfwGetTime() * 0.7f);
+        //lightColor.z = sin(glfwGetTime() * 1.3f);
 
-        glm::vec3 lightColor;
-        lightColor.x = sin(glfwGetTime() * 2.0f);
-        lightColor.y = sin(glfwGetTime() * 0.7f);
-        lightColor.z = sin(glfwGetTime() * 1.3f);
+        //glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
+        //glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
 
-        glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
-        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
-
-        lightingShader.setVec3("light.ambient", ambientColor);
-        lightingShader.setVec3("light.diffuse", diffuseColor);
+        //lightingShader.setVec3("light.ambient", ambientColor);
+        //lightingShader.setVec3("light.diffuse", diffuseColor);
+        // light properties
+        lightingShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+        lightingShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+        lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 
         lightingShader.setMat4("view", view);
         perspective_projection(lightingShader);
@@ -127,6 +116,13 @@ int main() {
         // world transformation
         model = glm::mat4(1.0f);
         lightingShader.setMat4("model", model);
+
+        // bind diffuse map
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        // bind specular map
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
 
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -148,10 +144,6 @@ int main() {
         
         glBindVertexArray(0);  
 
-#pragma region Pre-lighting 3
-
-
-
         //text();
         calibri.render_text("Kyle Krause OpenGL 3.3", 25.0f, 25.0f, 0.5f, glm::vec3(0.5, 0.5, 0.5));
         calibri.render_text(std::to_string(fps), (SCR_WIDTH - 60) + 0.0f, (SCR_HEIGHT - 30) + 0.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -159,15 +151,11 @@ int main() {
         // check and call events and swap the buffers: (double buffered) [stay at bottom]
         glfwSwapBuffers(window);
         glfwPollEvents();
-
-#pragma endregion
     }
 
     clear_glfw();
     return 0;
 }
-
-#pragma region Pre-lighting 4
 
 
 bool ESC_pressed, LCTRL_pressed, LSHIFT_pressed;
@@ -321,61 +309,39 @@ void gen_geometry_buffers(float *verts, float verts_size, float *dimensions, flo
     }
 }
 
-void load_textures()
+unsigned int load_texture(const char *path)
 {
-    //FOR GL_CLAMP_TO_BORDER
+    unsigned int result;
+    glGenTextures(1, &result);
 
-    //float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f }; // must define border color
-    //glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-    int tex_width, tex_height, nrChannels;
-    unsigned char* tex_data;
-    stbi_set_flip_vertically_on_load(true);
+    int width, height, nrComponents;
+    unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
 
-    // texture 1
-    // ---------
-    glGenTextures(1, &texture1);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture1);
-    // texture wrapping behavior
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // GL_REPEAT on s (x) axis
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // GL_REPEAT on t (y) axis
-    // texture zoom filtering behavior
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    tex_data = stbi_load("./resources/container.jpg", &tex_width, &tex_height, &nrChannels, 0);
-
-    if (tex_data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex_data);
+        glBindTexture(GL_TEXTURE_2D, result);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(tex_data); // free image memory
 
-    // texture 2
-    // ---------
-    glGenTextures(1, &texture2);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-    // texture wrapping behavior
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // GL_REPEAT on s (x) axis
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // GL_REPEAT on t (y) axis
-    // texture zoom filtering behavior
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    tex_data = stbi_load("./resources/worms_andrew.png", &tex_width, &tex_height, &nrChannels, 0);
-
-    if (tex_data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_data);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
-    else {
-        std::cout << "Failed to load texture" << std::endl;
+    else
+    {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
     }
-    stbi_image_free(tex_data); // free image memory
+
+    stbi_image_free(data); // free image memory
+    return result;
 }
 
 void perspective_projection(Shader& shader) {
@@ -399,4 +365,3 @@ void do_transformations(Shader& ourShader, glm::mat4 &model) {
     //model = glm::scale(model, glm::vec3(0.5f, 1.0f, 0.3f));
     ourShader.setMat4("model", model);
 }
-#pragma endregion

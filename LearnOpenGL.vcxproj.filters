@@ -78,6 +78,12 @@
     <Image Include="resources\worms_andrew.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="resources\container2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\container2_specular.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Font Include="fonts\calibri.ttf" />
