@@ -46,3 +46,18 @@ const glm::vec3 WORLD_RIGHT(1, 0, 0);
 const glm::vec3 WORLD_LEFT(-1, 0, 0);
 const glm::vec3 WORLD_FORWARD(0, 0, -1);
 const glm::vec3 WORLD_BACKWARD(0, 0, 1);
+
+const glm::vec3 attenuationCoefficients[] = {
+	glm::vec3(1.0f, 0.7f,		1.8f),
+	glm::vec3(1.0f, 0.35f,		0.44f),
+	glm::vec3(1.0f, 0.22f,		0.20f),
+	glm::vec3(1.0f, 0.14f,		0.07f),
+	glm::vec3(1.0f, 0.09f,		0.032f),
+	glm::vec3(1.0f, 0.07f,		0.017f),
+	glm::vec3(1.0f, 0.045f,		0.0075f),
+	glm::vec3(1.0f, 0.027f,		0.0028f),
+	glm::vec3(1.0f, 0.022f,		0.0019f),
+	glm::vec3(1.0f, 0.014f,		0.0007f),
+	glm::vec3(1.0f, 0.007f,		0.0002f),
+	glm::vec3(1.0f, 0.0014f,	0.000007f),
+};
