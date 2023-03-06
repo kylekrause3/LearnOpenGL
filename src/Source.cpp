@@ -19,6 +19,13 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 bool flashlight_on = false;
 
+glm::vec3 pointLightPositions[] = {
+        glm::vec3(1, -1, -1.3),
+        //glm::vec3(1.5, .75, 1.5),
+        glm::vec3(-1.2f, 0.8f, 0),
+        glm::vec3(1.2f, 0.0f, 0),
+};
+
 // lighting
 //glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
@@ -85,12 +92,7 @@ int main() {
     };
 
 
-    glm::vec3 pointLightPositions[] = {
-        glm::vec3(1, -1, -1.3),
-        //glm::vec3(1.5, .75, 1.5),
-        glm::vec3(-1.2f, 0.8f, 0),
-        glm::vec3(1.2f, 0.0f, 0),
-    };
+    
 
 
     float lastTime = 0.0f;
@@ -228,19 +230,30 @@ bool W_pressed, A_pressed, S_pressed, D_pressed;
 bool F_pressed;
 bool UP_pressed, DOWN_pressed;
 bool SPACE_pressed;
+bool I_pressed, J_pressed, K_pressed, L_pressed;
+bool P_pressed, SEMICOLON_pressed;
 
 void process_input(GLFWwindow* window) {
-    ESC_pressed     = glfwGetKey(window, GLFW_KEY_ESCAPE)       == GLFW_PRESS;
-    W_pressed       = glfwGetKey(window, GLFW_KEY_W)            == GLFW_PRESS;
-    S_pressed       = glfwGetKey(window, GLFW_KEY_S)            == GLFW_PRESS;
-    A_pressed       = glfwGetKey(window, GLFW_KEY_A)            == GLFW_PRESS;
-    D_pressed       = glfwGetKey(window, GLFW_KEY_D)            == GLFW_PRESS;
-    UP_pressed      = glfwGetKey(window, GLFW_KEY_UP)           == GLFW_PRESS;
-    DOWN_pressed    = glfwGetKey(window, GLFW_KEY_DOWN)         == GLFW_PRESS;
-    SPACE_pressed   = glfwGetKey(window, GLFW_KEY_SPACE)        == GLFW_PRESS;
-    LCTRL_pressed   = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
-    LSHIFT_pressed  = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)   == GLFW_PRESS;
-    F_pressed       = glfwGetKey(window, GLFW_KEY_F)            == GLFW_PRESS;
+    ESC_pressed         = glfwGetKey(window, GLFW_KEY_ESCAPE)       == GLFW_PRESS;
+    W_pressed           = glfwGetKey(window, GLFW_KEY_W)            == GLFW_PRESS;
+    S_pressed           = glfwGetKey(window, GLFW_KEY_S)            == GLFW_PRESS;
+    A_pressed           = glfwGetKey(window, GLFW_KEY_A)            == GLFW_PRESS;
+    D_pressed           = glfwGetKey(window, GLFW_KEY_D)            == GLFW_PRESS;
+    UP_pressed          = glfwGetKey(window, GLFW_KEY_UP)           == GLFW_PRESS;
+    DOWN_pressed        = glfwGetKey(window, GLFW_KEY_DOWN)         == GLFW_PRESS;
+    SPACE_pressed       = glfwGetKey(window, GLFW_KEY_SPACE)        == GLFW_PRESS;
+    LCTRL_pressed       = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
+    LSHIFT_pressed      = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)   == GLFW_PRESS;
+    F_pressed           = glfwGetKey(window, GLFW_KEY_F)            == GLFW_PRESS;
+    I_pressed           = glfwGetKey(window, GLFW_KEY_I)            == GLFW_PRESS;
+    J_pressed           = glfwGetKey(window, GLFW_KEY_J)            == GLFW_PRESS;
+    K_pressed           = glfwGetKey(window, GLFW_KEY_K)            == GLFW_PRESS;
+    L_pressed           = glfwGetKey(window, GLFW_KEY_L)            == GLFW_PRESS;
+    P_pressed           = glfwGetKey(window, GLFW_KEY_P)            == GLFW_PRESS;
+    SEMICOLON_pressed    = glfwGetKey(window, GLFW_KEY_SEMICOLON)    == GLFW_PRESS;
+
+    int lightCubeIndex = 0;
+    float lightCubeMoveSpeed = 1.0f * deltaTime;
 
     if (ESC_pressed) {
         glfwSetWindowShouldClose(window, true);
@@ -270,6 +283,25 @@ void process_input(GLFWwindow* window) {
 
     if (F_pressed) {
         flashlight_on = !flashlight_on;
+    }
+
+    if (I_pressed) {
+        pointLightPositions[lightCubeIndex] += WORLD_FORWARD * lightCubeMoveSpeed;
+    }
+    if (K_pressed) {
+        pointLightPositions[lightCubeIndex] += WORLD_BACKWARD * lightCubeMoveSpeed;
+    }
+    if (J_pressed) {
+        pointLightPositions[lightCubeIndex] += WORLD_LEFT * lightCubeMoveSpeed;
+    }
+    if (L_pressed) {
+        pointLightPositions[lightCubeIndex] += WORLD_RIGHT * lightCubeMoveSpeed;
+    }
+    if (P_pressed) {
+        pointLightPositions[lightCubeIndex] += WORLD_UP * lightCubeMoveSpeed;
+    }
+    if (SEMICOLON_pressed) {
+        pointLightPositions[lightCubeIndex] += WORLD_DOWN * lightCubeMoveSpeed;
     }
 }
 
