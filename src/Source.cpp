@@ -97,10 +97,11 @@ int main() {
 
     while (!glfwWindowShouldClose(window))
     {
+        #pragma region head
         currentTime = glfwGetTime();
-        deltaTime   = currentTime - lastTime;
-        int fps     = (int)(1 / deltaTime);
-        lastTime    = currentTime;
+        deltaTime = currentTime - lastTime;
+        int fps = (int)(1 / deltaTime);
+        lastTime = currentTime;
         // input: [stay at top]
         process_input(window);
 
@@ -118,10 +119,13 @@ int main() {
 
         modelShader.setVec3("viewPos", camera.Position);
         modelShader.setFloat("material.shininess", 64.0f);
+        #pragma endregion
+
+        
 
         //directional light
-        modelShader.setVec3("dirLight.direction", -1, -1, 1); // directional light
-        modelShader.setVec3("dirLight.ambient", glm::vec3(0.05f));
+        modelShader.setVec3("dirLight.direction",   -1, -1, 1); // directional light
+        modelShader.setVec3("dirLight.ambient",     glm::vec3(0.05f));
         modelShader.setVec3("dirLight.diffuse", glm::vec3(0.2f));
         modelShader.setVec3("dirLight.specular", 0.2f, 0.2f, 0.2f);
 
@@ -147,7 +151,7 @@ int main() {
             light = "pointLights[" + std::to_string(i) + "]";
             modelShader.setVec3(light + ".position", pointLightPositions[i]);
             modelShader.setVec3(light + ".ambient", glm::vec3(0.1f));
-            modelShader.setVec3(light + ".diffuse", glm::vec3(0.2f));
+            modelShader.setVec3(light + ".diffuse", glm::vec3(0.5f));
             modelShader.setVec3(light + ".specular", glm::vec3(1.0f));
             modelShader.setVec3(light + ".attenuationCoefficients", attenuationCoefficients[2]);
         }
