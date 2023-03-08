@@ -26,8 +26,7 @@ glm::vec3 pointLightPositions[] = {
         glm::vec3(1.2f, 0.0f, 0),
 };
 
-// lighting
-//glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+bool use_mouse = true;
 
 int main() {
     GLFWwindow* window = create_window();
@@ -232,6 +231,9 @@ bool UP_pressed, DOWN_pressed;
 bool SPACE_pressed;
 bool I_pressed, J_pressed, K_pressed, L_pressed;
 bool P_pressed, SEMICOLON_pressed;
+bool C_pressed;
+
+bool C_down = true;
 
 void process_input(GLFWwindow* window) {
     ESC_pressed         = glfwGetKey(window, GLFW_KEY_ESCAPE)       == GLFW_PRESS;
@@ -250,7 +252,8 @@ void process_input(GLFWwindow* window) {
     K_pressed           = glfwGetKey(window, GLFW_KEY_K)            == GLFW_PRESS;
     L_pressed           = glfwGetKey(window, GLFW_KEY_L)            == GLFW_PRESS;
     P_pressed           = glfwGetKey(window, GLFW_KEY_P)            == GLFW_PRESS;
-    SEMICOLON_pressed    = glfwGetKey(window, GLFW_KEY_SEMICOLON)    == GLFW_PRESS;
+    SEMICOLON_pressed   = glfwGetKey(window, GLFW_KEY_SEMICOLON)    == GLFW_PRESS;
+    C_pressed           = glfwGetKey(window, GLFW_KEY_C)            == GLFW_PRESS;
 
     int lightCubeIndex = 0;
     float lightCubeMoveSpeed = 1.0f * deltaTime;
@@ -303,6 +306,53 @@ void process_input(GLFWwindow* window) {
     if (SEMICOLON_pressed) {
         pointLightPositions[lightCubeIndex] += WORLD_DOWN * lightCubeMoveSpeed;
     }
+    if (C_pressed) {
+        if (C_down) {
+            use_mouse = !use_mouse; // toggle mouse in window
+
+            if (use_mouse) {
+                glfwSetCursorPos(window, SCR_WIDTH / 2, SCR_HEIGHT / 2);
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            }
+            else {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
+
+            C_down = false;
+        }
+    }
+    else {
+        C_down = true;
+    }
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    float xoffset = 0;
+    float yoffset = 0;
+    if (use_mouse) {
+        glfwSetCursorPos(window, SCR_WIDTH / 2, SCR_HEIGHT / 2);
+
+        xoffset = xpos - (SCR_WIDTH / 2);
+        yoffset = (SCR_HEIGHT / 2) - ypos;
+        /*float lastX = xpos;
+        float lastY = ypos;*/
+
+        float sensitivity = 0.5f;
+        xoffset *= sensitivity;
+        yoffset *= sensitivity;
+
+        camera.ProcessMouseMovement(xoffset, yoffset);
+    }
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 GLFWwindow* create_window() {
@@ -345,31 +395,6 @@ void clear_glfw() {
 
     glDeleteBuffers(1, &EBO);
     glfwTerminate();
-}
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-
-void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-    glfwSetCursorPos(window, SCR_WIDTH / 2, SCR_HEIGHT / 2);
-
-    float xoffset = xpos - (SCR_WIDTH / 2);
-    float yoffset = (SCR_HEIGHT / 2) - ypos;
-    /*float lastX = xpos;
-    float lastY = ypos;*/
-
-    float sensitivity = 0.5f;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    camera.ProcessMouseMovement(xoffset, yoffset);
-}
-
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-    camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 void gen_geometry_buffers(float *verts, float verts_size, float *dimensions, float dimensions_size, unsigned int &VAO, unsigned int& VBO, unsigned int &EBO) {
