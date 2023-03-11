@@ -75,23 +75,27 @@ int main() {
     lightingShader.setInt("material.specular", 1);
     */
 
+    glm::vec3 p0(2, 0, 5.0f);
+    glm::vec3 p1(4, 2, 1);
+    glm::vec3 p2(6, 1, 3);
+    glm::vec3 p3(8, 4, 1);
 
-    //glm::vec3 p0(4, 2, 1);
-    //glm::vec3 p1(3, 3, 2);
-    //glm::vec3 p2(3, 5, 3);
-    //glm::vec3 p3(2, 5, 6);
+    //points[0] = glm::vec3(2, 0, 0);
+    //points[1] = glm::vec3(4, 2, 1);
+    //points[2] = glm::vec3(6, 1, 0);
+    //points[3] = glm::vec3(8, 4, 0);
 
-    //glm::vec3 p0(1, 2, 0);
-    //glm::vec3 p1(2, 3, 0);
-    //glm::vec3 p2(3, 5, 0);
-    //glm::vec3 p3(6, 5, 0);
+    //glm::vec3 p0(1.7f, 2, -0.3f);
+    //glm::vec3 p1(2.0f, -.01f, 0.6f);
+    //glm::vec3 p2(3.1f, 1.4f, 1.0f);
+    //glm::vec3 p3(3.7f, 0.23f, 0);
 
-    glm::vec3 p0(2, 2, 1);
-    glm::vec3 p1(1, 3, 2);
-    glm::vec3 p2(-1, 5, 3);
-    glm::vec3 p3(1, 5, 6);
+    //glm::vec3 p0(0, -5, -1);
+    //glm::vec3 p1(0, 3, 5);
+    //glm::vec3 p2(5, 0, -5);
+    //glm::vec3 p3(-5, 5, 5);
 
-    const int amount = 20;
+    const int amount = 500;
     
     glm::vec3 points[amount];
     
@@ -205,6 +209,7 @@ int main() {
     
         // draw the Neons
         modelShader.use();
+        modelShader.setVec4("customColor", glm::vec4(0.6666f, 0.4666f, 1.0f, 1.0f));
         for (int i = 0; i < amount; i++) {
             model = glm::mat4(1.0f);
 
@@ -235,6 +240,8 @@ int main() {
             Neon.Draw(modelShader);
 
         }
+        modelShader.setVec4("customColor", glm::vec4(0.6666f, 0.4666f, 1.0f, 0.0f));
+
 
         
         
@@ -275,8 +282,46 @@ int main() {
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+        // draw light cubes (point lights)
+        lightCubeShader.setVec4("customColor", glm::vec4(1, 0, 0, 1));
+
+        glBindVertexArray(cubeVAO);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, p0);
+        model = glm::scale(model, glm::vec3(0.1f)); // a smaller cube
+        lightCubeShader.setMat4("model", model);
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        lightCubeShader.setVec4("customColor", glm::vec4(0, 1, 0, 1));
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, p1);
+        model = glm::scale(model, glm::vec3(0.1f)); // a smaller cube
+        lightCubeShader.setMat4("model", model);
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        lightCubeShader.setVec4("customColor", glm::vec4(0, 0, 1, 1));
 
 
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, p2);
+        model = glm::scale(model, glm::vec3(0.1f)); // a smaller cube
+        lightCubeShader.setMat4("model", model);
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        lightCubeShader.setVec4("customColor", glm::vec4(0, 1, 1, 1));
+        
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, p3);
+        model = glm::scale(model, glm::vec3(0.1f)); // a smaller cube
+        lightCubeShader.setMat4("model", model);
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        lightCubeShader.setVec4("customColor", glm::vec4(0, 0, 1, 0));
 
 
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe

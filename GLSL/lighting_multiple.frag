@@ -1,6 +1,7 @@
 #version 330 core
 out vec4 FragColor;
 
+uniform vec4 customColor;
 uniform vec3 viewPos; 
 
 in vec3 Normal;  
@@ -73,6 +74,10 @@ void main()
   	result += CalcSpotLight(spotLight, normal, FragPos, viewDir);
   
     FragColor = vec4(result, 1.0);
+
+    if (customColor.w != 0){
+        FragColor = vec4(customColor.x, customColor.y, customColor.z, 1.0);
+    }
 }  
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
