@@ -19,8 +19,14 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 bool flashlight_on = false;
 
-// lighting
-//glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 pointLightPositions[] = {
+        glm::vec3(1, -1, -1.3),
+        //glm::vec3(1.5, .75, 1.5),
+        glm::vec3(-1.2f, 0.8f, 0),
+        glm::vec3(1.2f, 0.0f, 0),
+};
+
+bool use_mouse = true;
 
 int main() {
     GLFWwindow* window = create_window();
@@ -93,22 +99,18 @@ int main() {
     };
 
 
-    glm::vec3 pointLightPositions[] = {
-        glm::vec3(1, -1, -1.3),
-        //glm::vec3(1.5, .75, 1.5),
-        glm::vec3(-1.2f, 0.8f, 0),
-        glm::vec3(1.2f, 0.0f, 0),
-    };
+    
 
 
     float lastTime = 0.0f;
 
     while (!glfwWindowShouldClose(window))
     {
+        #pragma region head
         currentTime = glfwGetTime();
-        deltaTime   = currentTime - lastTime;
-        int fps     = (int)(1 / deltaTime);
-        lastTime    = currentTime;
+        deltaTime = currentTime - lastTime;
+        int fps = (int)(1 / deltaTime);
+        lastTime = currentTime;
         // input: [stay at top]
         process_input(window);
 
@@ -126,10 +128,13 @@ int main() {
 
         modelShader.setVec3("viewPos", camera.Position);
         modelShader.setFloat("material.shininess", 64.0f);
+        #pragma endregion
+
+        
 
         //directional light
-        modelShader.setVec3("dirLight.direction", -1, -1, 1); // directional light
-        modelShader.setVec3("dirLight.ambient", glm::vec3(0.05f));
+        modelShader.setVec3("dirLight.direction",   -1, -1, 1); // directional light
+        modelShader.setVec3("dirLight.ambient",     glm::vec3(0.05f));
         modelShader.setVec3("dirLight.diffuse", glm::vec3(0.2f));
         modelShader.setVec3("dirLight.specular", 0.2f, 0.2f, 0.2f);
 
@@ -155,7 +160,7 @@ int main() {
             light = "pointLights[" + std::to_string(i) + "]";
             modelShader.setVec3(light + ".position", pointLightPositions[i]);
             modelShader.setVec3(light + ".ambient", glm::vec3(0.1f));
-            modelShader.setVec3(light + ".diffuse", glm::vec3(0.2f));
+            modelShader.setVec3(light + ".diffuse", glm::vec3(0.5f));
             modelShader.setVec3(light + ".specular", glm::vec3(1.0f));
             modelShader.setVec3(light + ".attenuationCoefficients", attenuationCoefficients[2]);
         }
@@ -232,19 +237,34 @@ bool W_pressed, A_pressed, S_pressed, D_pressed;
 bool F_pressed;
 bool UP_pressed, DOWN_pressed;
 bool SPACE_pressed;
+bool I_pressed, J_pressed, K_pressed, L_pressed;
+bool P_pressed, SEMICOLON_pressed;
+bool C_pressed;
+
+bool C_down = true;
 
 void process_input(GLFWwindow* window) {
-    ESC_pressed     = glfwGetKey(window, GLFW_KEY_ESCAPE)       == GLFW_PRESS;
-    W_pressed       = glfwGetKey(window, GLFW_KEY_W)            == GLFW_PRESS;
-    S_pressed       = glfwGetKey(window, GLFW_KEY_S)            == GLFW_PRESS;
-    A_pressed       = glfwGetKey(window, GLFW_KEY_A)            == GLFW_PRESS;
-    D_pressed       = glfwGetKey(window, GLFW_KEY_D)            == GLFW_PRESS;
-    UP_pressed      = glfwGetKey(window, GLFW_KEY_UP)           == GLFW_PRESS;
-    DOWN_pressed    = glfwGetKey(window, GLFW_KEY_DOWN)         == GLFW_PRESS;
-    SPACE_pressed   = glfwGetKey(window, GLFW_KEY_SPACE)        == GLFW_PRESS;
-    LCTRL_pressed   = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
-    LSHIFT_pressed  = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)   == GLFW_PRESS;
-    F_pressed       = glfwGetKey(window, GLFW_KEY_F)            == GLFW_PRESS;
+    ESC_pressed         = glfwGetKey(window, GLFW_KEY_ESCAPE)       == GLFW_PRESS;
+    W_pressed           = glfwGetKey(window, GLFW_KEY_W)            == GLFW_PRESS;
+    S_pressed           = glfwGetKey(window, GLFW_KEY_S)            == GLFW_PRESS;
+    A_pressed           = glfwGetKey(window, GLFW_KEY_A)            == GLFW_PRESS;
+    D_pressed           = glfwGetKey(window, GLFW_KEY_D)            == GLFW_PRESS;
+    UP_pressed          = glfwGetKey(window, GLFW_KEY_UP)           == GLFW_PRESS;
+    DOWN_pressed        = glfwGetKey(window, GLFW_KEY_DOWN)         == GLFW_PRESS;
+    SPACE_pressed       = glfwGetKey(window, GLFW_KEY_SPACE)        == GLFW_PRESS;
+    LCTRL_pressed       = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
+    LSHIFT_pressed      = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)   == GLFW_PRESS;
+    F_pressed           = glfwGetKey(window, GLFW_KEY_F)            == GLFW_PRESS;
+    I_pressed           = glfwGetKey(window, GLFW_KEY_I)            == GLFW_PRESS;
+    J_pressed           = glfwGetKey(window, GLFW_KEY_J)            == GLFW_PRESS;
+    K_pressed           = glfwGetKey(window, GLFW_KEY_K)            == GLFW_PRESS;
+    L_pressed           = glfwGetKey(window, GLFW_KEY_L)            == GLFW_PRESS;
+    P_pressed           = glfwGetKey(window, GLFW_KEY_P)            == GLFW_PRESS;
+    SEMICOLON_pressed   = glfwGetKey(window, GLFW_KEY_SEMICOLON)    == GLFW_PRESS;
+    C_pressed           = glfwGetKey(window, GLFW_KEY_C)            == GLFW_PRESS;
+
+    int lightCubeIndex = 0;
+    float lightCubeMoveSpeed = 1.0f * deltaTime;
 
     if (ESC_pressed) {
         glfwSetWindowShouldClose(window, true);
@@ -275,6 +295,72 @@ void process_input(GLFWwindow* window) {
     if (F_pressed) {
         flashlight_on = !flashlight_on;
     }
+
+    if (I_pressed) {
+        pointLightPositions[lightCubeIndex] += WORLD_FORWARD * lightCubeMoveSpeed;
+    }
+    if (K_pressed) {
+        pointLightPositions[lightCubeIndex] += WORLD_BACKWARD * lightCubeMoveSpeed;
+    }
+    if (J_pressed) {
+        pointLightPositions[lightCubeIndex] += WORLD_LEFT * lightCubeMoveSpeed;
+    }
+    if (L_pressed) {
+        pointLightPositions[lightCubeIndex] += WORLD_RIGHT * lightCubeMoveSpeed;
+    }
+    if (P_pressed) {
+        pointLightPositions[lightCubeIndex] += WORLD_UP * lightCubeMoveSpeed;
+    }
+    if (SEMICOLON_pressed) {
+        pointLightPositions[lightCubeIndex] += WORLD_DOWN * lightCubeMoveSpeed;
+    }
+    if (C_pressed) {
+        if (C_down) {
+            use_mouse = !use_mouse; // toggle mouse in window
+
+            if (use_mouse) {
+                glfwSetCursorPos(window, SCR_WIDTH / 2, SCR_HEIGHT / 2);
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            }
+            else {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
+
+            C_down = false;
+        }
+    }
+    else {
+        C_down = true;
+    }
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    float xoffset = 0;
+    float yoffset = 0;
+    if (use_mouse) {
+        glfwSetCursorPos(window, SCR_WIDTH / 2, SCR_HEIGHT / 2);
+
+        xoffset = xpos - (SCR_WIDTH / 2);
+        yoffset = (SCR_HEIGHT / 2) - ypos;
+        /*float lastX = xpos;
+        float lastY = ypos;*/
+
+        float sensitivity = 0.5f;
+        xoffset *= sensitivity;
+        yoffset *= sensitivity;
+
+        camera.ProcessMouseMovement(xoffset, yoffset);
+    }
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 GLFWwindow* create_window() {
@@ -317,31 +403,6 @@ void clear_glfw() {
 
     glDeleteBuffers(1, &EBO);
     glfwTerminate();
-}
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-
-void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-    glfwSetCursorPos(window, SCR_WIDTH / 2, SCR_HEIGHT / 2);
-
-    float xoffset = xpos - (SCR_WIDTH / 2);
-    float yoffset = (SCR_HEIGHT / 2) - ypos;
-    /*float lastX = xpos;
-    float lastY = ypos;*/
-
-    float sensitivity = 0.5f;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    camera.ProcessMouseMovement(xoffset, yoffset);
-}
-
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-    camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 void gen_geometry_buffers(float *verts, float verts_size, float *dimensions, float dimensions_size, unsigned int &VAO, unsigned int& VBO, unsigned int &EBO) {

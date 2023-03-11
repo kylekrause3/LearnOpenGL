@@ -24,19 +24,19 @@
 
 // method prototypes
 
-void process_input(GLFWwindow* window);
-GLFWwindow* create_window();
-int glfw_configuration(GLFWwindow* window);
-void clear_glfw();
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void gen_geometry_buffers(float* verts, float verts_size, float* dimensions, float dimensions_size, unsigned int& VAO, unsigned int& VBO, unsigned int& EBO);
-unsigned int load_texture(const char* path);
-void perspective_projection(Shader& ourShader);
-void do_transformations(Shader& ourShader, glm::mat4& model);
+void			process_input(GLFWwindow* window);
+GLFWwindow*		create_window();
+int				glfw_configuration(GLFWwindow* window);
+void			clear_glfw();
+void			framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void			mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void			scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void			gen_geometry_buffers(float* verts, float verts_size, float* dimensions, float dimensions_size, unsigned int& VAO, unsigned int& VBO, unsigned int& EBO);
+unsigned int	load_texture(const char* path);
+void			perspective_projection(Shader& ourShader);
+void			do_transformations(Shader& ourShader, glm::mat4& model);
 
-const float PI = 3.1415927;
+const float PI	= 3.1415927;
 const float TAU = 6.2831853;
 
 float deg2rad(float x) { return x * (PI / 180); }
@@ -50,16 +50,16 @@ const glm::vec3 WORLD_FORWARD(0, 0, -1);
 const glm::vec3 WORLD_BACKWARD(0, 0, 1);
 
 const glm::vec3 attenuationCoefficients[] = {
-	glm::vec3(1.0f, 0.7f,		1.8f),
-	glm::vec3(1.0f, 0.35f,		0.44f),
-	glm::vec3(1.0f, 0.22f,		0.20f),
-	glm::vec3(1.0f, 0.14f,		0.07f),
-	glm::vec3(1.0f, 0.09f,		0.032f),
-	glm::vec3(1.0f, 0.07f,		0.017f),
-	glm::vec3(1.0f, 0.045f,		0.0075f),
-	glm::vec3(1.0f, 0.027f,		0.0028f),
-	glm::vec3(1.0f, 0.022f,		0.0019f),
-	glm::vec3(1.0f, 0.014f,		0.0007f),
-	glm::vec3(1.0f, 0.007f,		0.0002f),
-	glm::vec3(1.0f, 0.0014f,	0.000007f),
+	glm::vec3(1.0f, 0.7f,	 1.8f),
+	glm::vec3(1.0f, 0.35f,	 0.44f),
+	glm::vec3(1.0f, 0.22f,	 0.20f),
+	glm::vec3(1.0f, 0.14f,	 0.07f),
+	glm::vec3(1.0f, 0.09f,	 0.032f),
+	glm::vec3(1.0f, 0.07f,	 0.017f),
+	glm::vec3(1.0f, 0.045f,	 0.0075f),
+	glm::vec3(1.0f, 0.027f,	 0.0028f),
+	glm::vec3(1.0f, 0.022f,	 0.0019f),
+	glm::vec3(1.0f, 0.014f,	 0.0007f),
+	glm::vec3(1.0f, 0.007f,	 0.0002f),
+	glm::vec3(1.0f, 0.0014f, 0.000007f),
 };
