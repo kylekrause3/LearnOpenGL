@@ -15,6 +15,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 
 #include <ft2build.h>
@@ -35,6 +36,9 @@ void			gen_geometry_buffers(float* verts, float verts_size, float* dimensions, f
 unsigned int	load_texture(const char* path);
 void			perspective_projection(Shader& ourShader);
 void			do_transformations(Shader& ourShader, glm::mat4& model);
+float			magnitude(glm::vec3 vector);
+glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest);
+glm::quat LookAt(glm::vec3 direction, glm::vec3 desiredUp);
 
 const float PI	= 3.1415927;
 const float TAU = 6.2831853;

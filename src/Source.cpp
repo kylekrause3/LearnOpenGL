@@ -74,24 +74,41 @@ int main() {
     lightingShader.setInt("material.diffuse", 0);
     lightingShader.setInt("material.specular", 1);
     */
-    glm::vec3 p0(1, 2, 0);
-    glm::vec3 p1(2, 3, 0);
-    glm::vec3 p2(3, 5, 0);
-    glm::vec3 p3(6, 5, 0);
-    
-    glm::vec3 points[20];
-    
-    for (int i = 0; i < 20; i++) {
-        glm::vec3 SplinePoint = CRSpline::CatmullRom(p0, p1, p2, p3, i / (float) 20);
 
-        std::cout << "x: " << SplinePoint.x << "\t | y:  " << SplinePoint.y << "\t | z: " << SplinePoint.z << std::endl;
+
+    //glm::vec3 p0(4, 2, 1);
+    //glm::vec3 p1(3, 3, 2);
+    //glm::vec3 p2(3, 5, 3);
+    //glm::vec3 p3(2, 5, 6);
+
+    //glm::vec3 p0(1, 2, 0);
+    //glm::vec3 p1(2, 3, 0);
+    //glm::vec3 p2(3, 5, 0);
+    //glm::vec3 p3(6, 5, 0);
+
+    glm::vec3 p0(2, 2, 1);
+    glm::vec3 p1(1, 3, 2);
+    glm::vec3 p2(-1, 5, 3);
+    glm::vec3 p3(1, 5, 6);
+
+    const int amount = 20;
+    
+    glm::vec3 points[amount];
+    
+    for (int i = 0; i < amount; i++) {
+        glm::vec3 SplinePoint = CRSpline::CatmullRom(p0, p1, p2, p3, i / (float) amount);
 
         points[i] = SplinePoint;
     }
 
-    
+    glm::vec3 distanceVec[amount];
+    int i;
+    for (i = 0; i < amount - 1; i++) {
+        distanceVec[i] = glm::normalize(points[i + 1] - points[i]);
+    }
+    i = amount - 1;
+    distanceVec[i] = -1.0f * distanceVec[i - 1];
 
-    
 
 
 
@@ -185,21 +202,43 @@ int main() {
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         modelShader.setMat4("model", model);
         backpack.Draw(modelShader);
-
-
-        // draw the loaded model
+    
+        // draw the Neons
         modelShader.use();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < amount; i++) {
             model = glm::mat4(1.0f);
-            model = model = glm::translate(model, points[i]);
-            model = glm::scale(model, glm::vec3(0.5f));	// it's a bit too big for our scene, so scale it down
+
+
+
+            model = glm::translate(model, points[i]);
+            //model = glm::rotate(model, PI / 2, glm::vec3(0, 0, 1));
+            float x = distanceVec[i].x;
+            float y = distanceVec[i].y;
+            float z = distanceVec[i].z;
+
+            //lastQuat = glm::radians(lastQuat);
+
+            glm::vec3 toQuat(atan(y / z), atan(z / x), atan(y / x));
+            toQuat = abs(toQuat);
+            toQuat = glm::normalize(toQuat);
+            glm::quat quat = LookAt(distanceVec[i], WORLD_UP);
+
+            glm::mat4 RotationMatrix = glm::toMat4(quat);
+            model = model * RotationMatrix;
+            //model = glm::rotate(model, rots[i].y, glm::vec3(0, 0, 1));
+            //model = glm::rotate(model, rots[i].z, glm::vec3(1, 0, 0));
+
+            //model = glm::scale(model, glm::vec3(0.5f));	// it's a bit too big for our scene, so scale it down
+
+
             modelShader.setMat4("model", model);
             Neon.Draw(modelShader);
+
         }
 
         
         
-
+        
 
         // draw non model cubes
         modelShader.setInt("material.texture_diffuse1", cubeDiffLoc);
@@ -254,7 +293,6 @@ int main() {
         glfwPollEvents();
     }
 
-    delete points;
     clear_glfw();
     return 0;
 }
@@ -537,4 +575,77 @@ void do_transformations(Shader& ourShader, glm::mat4 &model) {
 
     //model = glm::scale(model, glm::vec3(0.5f, 1.0f, 0.3f));
     ourShader.setMat4("model", model);
+}
+
+float magnitude(glm::vec3 vector) {
+    float result = 0.0f;
+
+    result += vector.x * vector.x;
+    result += vector.y * vector.y;
+    result += vector.z * vector.z;
+
+    return sqrt(result);
+}
+
+// source
+// http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/
+// Returns a quaternion such that q*start = dest
+glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest) {
+    start = normalize(start);
+    dest = normalize(dest);
+
+    float cosTheta = glm::dot(start, dest);
+    glm::vec3 rotationAxis;
+
+    if (cosTheta < -1 + 0.001f) {
+        // special case when vectors in opposite directions :
+        // there is no "ideal" rotation axis
+        // So guess one; any will do as long as it's perpendicular to start
+        // This implementation favors a rotation around the Up axis,
+        // since it's often what you want to do.
+        rotationAxis = glm::cross(glm::vec3(0.0f, 0.0f, 1.0f), start);
+        if (glm::length2(rotationAxis) < 0.01) // bad luck, they were parallel, try again!
+            rotationAxis = glm::cross(glm::vec3(1.0f, 0.0f, 0.0f), start);
+
+        rotationAxis = normalize(rotationAxis);
+        return glm::angleAxis(glm::radians(180.0f), rotationAxis);
+    }
+
+    // Implementation from Stan Melax's Game Programming Gems 1 article
+    rotationAxis = glm::cross(start, dest);
+
+    float s = sqrt((1 + cosTheta) * 2);
+    float invs = 1 / s;
+
+    return glm::quat(
+        s * 0.5f,
+        rotationAxis.x * invs,
+        rotationAxis.y * invs,
+        rotationAxis.z * invs
+    );
+
+
+}
+
+
+glm::quat LookAt(glm::vec3 direction, glm::vec3 desiredUp) {
+
+    if (glm::length2(direction) < 0.0001f)
+        return glm::quat();
+
+    // Recompute desiredUp so that it's perpendicular to the direction
+    // You can skip that part if you really want to force desiredUp
+    glm::vec3 right = glm::cross(direction, desiredUp);
+    desiredUp = cross(right, direction);
+
+    // Find the rotation between the front of the object (that we assume towards +Z,
+    // but this depends on your model) and the desired direction
+    glm::quat rot1 = RotationBetweenVectors(glm::vec3(0.0f, 0.0f, 1.0f), direction);
+    // Because of the 1rst rotation, the up is probably completely screwed up. 
+    // Find the rotation between the "up" of the rotated object, and the desired up
+    glm::vec3 newUp = rot1 * glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::quat rot2 = RotationBetweenVectors(newUp, desiredUp);
+
+    // Apply them
+    return rot2 * rot1; // remember, in reverse order.
 }
