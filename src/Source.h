@@ -8,12 +8,14 @@
 #include <./src/Camera.h>
 #include <./src/Text.h>
 #include <./src/verts.h>
+#include <./src/CRSpline.h>
 
 #include <./src/stb_image.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

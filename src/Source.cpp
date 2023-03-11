@@ -69,6 +69,14 @@ int main() {
     lightingShader.setInt("material.specular", 1);
     
     */
+    glm::vec3 p0(0, 0, 0);
+    glm::vec3 p1(1, 1, 0);
+    glm::vec3 p2(2, 2, 0);
+    glm::vec3 p3(3, 3, 0);
+    float t = 0.33f;
+    glm::vec3 SplinePoint = CRSpline::CatmullRom(p0, p1, p2, p3, t);
+
+    std::cout << "x: " << SplinePoint.x << " | y:  " << SplinePoint.y << " | z: " << SplinePoint.z << std::endl;
 
 
     glm::vec3 cubePositions[] = {
