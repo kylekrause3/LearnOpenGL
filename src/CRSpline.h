@@ -17,7 +17,7 @@ public:
         glm::vec3 A3 = (t3 - t) / (t3 - t2) * p2 + (t - t2) / (t3 - t2) * p3;
         glm::vec3 B1 = (t2 - t) / (t2 - t0) * A1 + (t - t0) / (t2 - t0) * A2;
         glm::vec3 B2 = (t3 - t) / (t3 - t1) * A2 + (t - t1) / (t3 - t1) * A3;
-        glm::vec3 C = (t2 - t) / (t2 - t1) * B1 + (t - t1) / (t2 - t1) * B2;
+        glm::vec3 C  = (t2 - t) / (t2 - t1) * B1 + (t - t1) / (t2 - t1) * B2;
         return C;
     }
 private:

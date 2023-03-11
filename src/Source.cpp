@@ -73,16 +73,26 @@ int main() {
     // tell lighting frag shader that TEXTURE0 is diffuse, TEXTURE1 is ambient
     lightingShader.setInt("material.diffuse", 0);
     lightingShader.setInt("material.specular", 1);
-    
     */
-    glm::vec3 p0(0, 0, 0);
-    glm::vec3 p1(1, 1, 0);
-    glm::vec3 p2(2, 2, 0);
-    glm::vec3 p3(3, 3, 0);
-    float t = 0.33f;
-    glm::vec3 SplinePoint = CRSpline::CatmullRom(p0, p1, p2, p3, t);
+    glm::vec3 p0(1, 2, 0);
+    glm::vec3 p1(2, 3, 0);
+    glm::vec3 p2(3, 5, 0);
+    glm::vec3 p3(6, 5, 0);
+    
+    glm::vec3 points[20];
+    
+    for (int i = 0; i < 20; i++) {
+        glm::vec3 SplinePoint = CRSpline::CatmullRom(p0, p1, p2, p3, i / (float) 20);
 
-    std::cout << "x: " << SplinePoint.x << " | y:  " << SplinePoint.y << " | z: " << SplinePoint.z << std::endl;
+        std::cout << "x: " << SplinePoint.x << "\t | y:  " << SplinePoint.y << "\t | z: " << SplinePoint.z << std::endl;
+
+        points[i] = SplinePoint;
+    }
+
+    
+
+    
+
 
 
     glm::vec3 cubePositions[] = {
@@ -177,6 +187,20 @@ int main() {
         backpack.Draw(modelShader);
 
 
+        // draw the loaded model
+        modelShader.use();
+        for (int i = 0; i < 20; i++) {
+            model = glm::mat4(1.0f);
+            model = model = glm::translate(model, points[i]);
+            model = glm::scale(model, glm::vec3(0.5f));	// it's a bit too big for our scene, so scale it down
+            modelShader.setMat4("model", model);
+            Neon.Draw(modelShader);
+        }
+
+        
+        
+
+
         // draw non model cubes
         modelShader.setInt("material.texture_diffuse1", cubeDiffLoc);
         modelShader.setInt("material.texture_specular1", cubeSpecLoc);
@@ -213,6 +237,9 @@ int main() {
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
+
+
+
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); FOR EBO
         
@@ -227,6 +254,7 @@ int main() {
         glfwPollEvents();
     }
 
+    delete points;
     clear_glfw();
     return 0;
 }
@@ -241,6 +269,7 @@ bool I_pressed, J_pressed, K_pressed, L_pressed;
 bool P_pressed, SEMICOLON_pressed;
 bool C_pressed;
 
+bool F_down = true;
 bool C_down = true;
 
 void process_input(GLFWwindow* window) {
@@ -293,7 +322,13 @@ void process_input(GLFWwindow* window) {
     }
 
     if (F_pressed) {
-        flashlight_on = !flashlight_on;
+        if (F_down) {
+            flashlight_on = !flashlight_on;
+        }
+        F_down = false;
+    }
+    else {
+        F_down = true;
     }
 
     if (I_pressed) {
@@ -402,6 +437,8 @@ void clear_glfw() {
     glDeleteBuffers(1, &VBO);
 
     glDeleteBuffers(1, &EBO);
+
+    
     glfwTerminate();
 }
 
