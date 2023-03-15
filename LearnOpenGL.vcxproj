@@ -45,11 +45,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\CRSpline.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\debug.h" />
     <ClInclude Include="src\Source.h" />
+    <ClInclude Include="src\stb_image.h" />
     <ClInclude Include="src\Text.h" />
     <ClInclude Include="src\verts.h" />
   </ItemGroup>
