@@ -1,5 +1,6 @@
 #include <iostream>
 #include <map>
+#include <vector>
 
 #include <glad/glad.h> //glad first be sure to include GLAD before other header files that require OpenGL (ex. glfw)
 #include <GLFW/glfw3.h>
@@ -8,7 +9,7 @@
 #include <./src/Camera.h>
 #include <./src/Text.h>
 #include <./src/verts.h>
-#include <./src/CRSpline.h>
+#include <./src/Spline.h>
 
 #include <./src/stb_image.h>
 

@@ -75,10 +75,13 @@ int main() {
     lightingShader.setInt("material.specular", 1);
     */
 
-    glm::vec3 p0(2, 0, 5.0f);
-    glm::vec3 p1(4, 2, 1);
-    glm::vec3 p2(6, 1, 3);
-    glm::vec3 p3(8, 4, 1);
+    std::vector<glm::vec3> controlPoints = {
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(2.0f, 2.0f, 1.0f),
+        glm::vec3(4.0f, -2.0f, 2.0f),
+        glm::vec3(6.0f, 2.0f, 3.0f),
+        glm::vec3(8.0f, 0.0f, 4.0f),
+    };
 
     //points[0] = glm::vec3(2, 0, 0);
     //points[1] = glm::vec3(4, 2, 1);
@@ -95,12 +98,15 @@ int main() {
     //glm::vec3 p2(5, 0, -5);
     //glm::vec3 p3(-5, 5, 5);
 
-    const int amount = 500;
+    const int amount = 100;
     
     glm::vec3 points[amount];
     
     for (int i = 0; i < amount; i++) {
-        glm::vec3 SplinePoint = CRSpline::CatmullRom(p0, p1, p2, p3, i / (float) amount);
+        std::cout << "Mesh #" << i << std::endl;
+
+        //glm::vec3 SplinePoint = Spline::Hermite(calcPoints[3], calcPoints[0], calcPoints[1], calcPoints[2], i / (float) amount);
+        glm::vec3 SplinePoint = Spline::BSpline(controlPoints, i / (float) amount);
 
         points[i] = SplinePoint;
     }
@@ -135,6 +141,7 @@ int main() {
 
     float lastTime = 0.0f;
 
+    std::cout << "Starting loop..." << std::endl;
     while (!glfwWindowShouldClose(window))
     {
         #pragma region head
@@ -282,45 +289,18 @@ int main() {
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-        // draw light cubes (point lights)
+
         lightCubeShader.setVec4("customColor", glm::vec4(1, 0, 0, 1));
 
-        glBindVertexArray(cubeVAO);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, p0);
-        model = glm::scale(model, glm::vec3(0.1f)); // a smaller cube
-        lightCubeShader.setMat4("model", model);
+        for (int i = 0; i < controlPoints.size(); i++) {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, controlPoints[i]);
+            model = glm::scale(model, glm::vec3(0.1f)); // a smaller cube
+            lightCubeShader.setMat4("model", model);
 
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        lightCubeShader.setVec4("customColor", glm::vec4(0, 1, 0, 1));
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, p1);
-        model = glm::scale(model, glm::vec3(0.1f)); // a smaller cube
-        lightCubeShader.setMat4("model", model);
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        lightCubeShader.setVec4("customColor", glm::vec4(0, 0, 1, 1));
-
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, p2);
-        model = glm::scale(model, glm::vec3(0.1f)); // a smaller cube
-        lightCubeShader.setMat4("model", model);
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        lightCubeShader.setVec4("customColor", glm::vec4(0, 1, 1, 1));
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
         
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, p3);
-        model = glm::scale(model, glm::vec3(0.1f)); // a smaller cube
-        lightCubeShader.setMat4("model", model);
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
         lightCubeShader.setVec4("customColor", glm::vec4(0, 0, 1, 0));
 
 
