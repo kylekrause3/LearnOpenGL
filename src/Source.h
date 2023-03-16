@@ -18,6 +18,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include <./src/imgui/imgui.h>
+#include <./src/imgui/imgui_impl_opengl3.h>
+#include <./src/imgui/imgui_impl_glfw.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -40,6 +43,7 @@ void			do_transformations(Shader& ourShader, glm::mat4& model);
 float			magnitude(glm::vec3 vector);
 glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest);
 glm::quat LookAt(glm::vec3 direction, glm::vec3 desiredUp);
+void splineMeshes(Spline& s, std::vector<glm::vec3>& splinePoints, std::vector<glm::vec3>& distanceVec, int amount);
 
 const float PI	= 3.1415927;
 const float TAU = 6.2831853;

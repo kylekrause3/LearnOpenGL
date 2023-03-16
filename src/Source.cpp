@@ -6,7 +6,7 @@ const unsigned int SCR_HEIGHT   = 800;
 
 
 // timing
-float currentTime   = 0.0f;
+double currentTime   = 0.0;
 float deltaTime     = 0.0f;
 float lastFrame     = 0.0f;
 
@@ -47,6 +47,8 @@ int main() {
     }
     stbi_set_flip_vertically_on_load(true);
 
+
+       
     // light cubes
     texture1 = load_texture("./resources/container2.png");
     texture2 = load_texture("./resources/container2_specular.png");
@@ -75,14 +77,17 @@ int main() {
     lightingShader.setInt("material.specular", 1);
     */
 
-    std::vector<glm::vec3> controlPoints = {
+    
+
+    std::vector<glm::vec3> initialControlPoints = {
         glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3(2.0f, 2.0f, 1.0f),
         glm::vec3(4.0f, -2.0f, 2.0f),
         glm::vec3(6.0f, 2.0f, 3.0f),
-        glm::vec3(8.0f, 0.0f, 4.0f),
+        glm::vec3(8.0f, 4.0f, 4.0f),
+        glm::vec3(10.0f, -4.0f, 5.0f),
     };
-
+    Spline s(initialControlPoints, Spline::SplineType::CatmullRomSpline);
     //points[0] = glm::vec3(2, 0, 0);
     //points[1] = glm::vec3(4, 2, 1);
     //points[2] = glm::vec3(6, 1, 0);
@@ -98,27 +103,12 @@ int main() {
     //glm::vec3 p2(5, 0, -5);
     //glm::vec3 p3(-5, 5, 5);
 
-    const int amount = 100;
-    
-    glm::vec3 points[amount];
-    
-    for (int i = 0; i < amount; i++) {
-        std::cout << "Mesh #" << i << std::endl;
+    int amount = 100;
 
-        //glm::vec3 SplinePoint = Spline::Hermite(calcPoints[3], calcPoints[0], calcPoints[1], calcPoints[2], i / (float) amount);
-        glm::vec3 SplinePoint = Spline::BSpline(controlPoints, i / (float) amount);
+    std::vector<glm::vec3> splinePoints;
+    std::vector<glm::vec3> distanceVec;
 
-        points[i] = SplinePoint;
-    }
-
-    glm::vec3 distanceVec[amount];
-    int i;
-    for (i = 0; i < amount - 1; i++) {
-        distanceVec[i] = glm::normalize(points[i + 1] - points[i]);
-    }
-    i = amount - 1;
-    distanceVec[i] = -1.0f * distanceVec[i - 1];
-
+    splineMeshes(s, splinePoints, distanceVec, amount);
 
 
 
@@ -140,7 +130,8 @@ int main() {
 
 
     float lastTime = 0.0f;
-
+    std::vector<glm::vec3> drawingControlPoints = initialControlPoints;
+    int addedDrawPoints = 0;
     std::cout << "Starting loop..." << std::endl;
     while (!glfwWindowShouldClose(window))
     {
@@ -155,6 +146,37 @@ int main() {
         //background color [stay at top]
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // Add ImGui elements (e.g., windows, buttons, sliders)
+        ImGui::Begin("Hello, world!");
+        ImGui::Text("This is some useful text.");
+
+        srand(currentTime);
+        if (ImGui::Button("Add Spline Points")) {
+            int randx = rand() % 5 + 1;
+            int randy = rand() % 5 + 1;
+            int randz = rand() % 5 + 1;
+
+            bool success = false;
+            if (!splinePoints.empty()) {
+                success = s.AddControlPoint(glm::vec3(randx, randy, randz));
+            }
+            else {
+                success = s.AddControlPoint(glm::vec3(randx, randy, randz));
+            }
+            std::cout << randx << " " << randy << " " << randz << std::endl;
+            if (success) {
+                amount += 25;
+                splinePoints.clear();
+                distanceVec.clear();
+                splineMeshes(s, splinePoints, distanceVec, amount);
+            }
+        }
 
 
         modelShader.use();
@@ -217,12 +239,12 @@ int main() {
         // draw the Neons
         modelShader.use();
         modelShader.setVec4("customColor", glm::vec4(0.6666f, 0.4666f, 1.0f, 1.0f));
-        for (int i = 0; i < amount; i++) {
+        for (int i = 0; i < splinePoints.size(); i++) {
             model = glm::mat4(1.0f);
 
 
 
-            model = glm::translate(model, points[i]);
+            model = glm::translate(model, splinePoints[i]);
             //model = glm::rotate(model, PI / 2, glm::vec3(0, 0, 1));
             float x = distanceVec[i].x;
             float y = distanceVec[i].y;
@@ -248,10 +270,6 @@ int main() {
 
         }
         modelShader.setVec4("customColor", glm::vec4(0.6666f, 0.4666f, 1.0f, 0.0f));
-
-
-        
-        
         
 
         // draw non model cubes
@@ -291,10 +309,9 @@ int main() {
         }
 
         lightCubeShader.setVec4("customColor", glm::vec4(1, 0, 0, 1));
-
-        for (int i = 0; i < controlPoints.size(); i++) {
+        for (int i = 0; i < s.GetControlPoints().size(); i++) {
             model = glm::mat4(1.0f);
-            model = glm::translate(model, controlPoints[i]);
+            model = glm::translate(model, s.GetControlPoints()[i]);
             model = glm::scale(model, glm::vec3(0.1f)); // a smaller cube
             lightCubeShader.setMat4("model", model);
 
@@ -312,6 +329,11 @@ int main() {
         //text();
         calibri.render_text("Kyle Krause OpenGL 3.3", 25.0f, 25.0f, 0.5f, glm::vec3(0.5, 0.5, 0.5));
         calibri.render_text(std::to_string(fps), (SCR_WIDTH - 60) + 0.0f, (SCR_HEIGHT - 30) + 0.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+
+        //imgui [stay at bottom]
+        ImGui::End();
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // check and call events and swap the buffers: (double buffered) [stay at bottom]
         glfwSwapBuffers(window);
@@ -492,6 +514,18 @@ int glfw_configuration(GLFWwindow* window) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEPTH_TEST);
 
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+
+    // Setup Platform/Renderer bindings
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
+
     return 0;
 }
 
@@ -501,6 +535,9 @@ void clear_glfw() {
 
     glDeleteBuffers(1, &EBO);
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     
     glfwTerminate();
 }
@@ -673,4 +710,22 @@ glm::quat LookAt(glm::vec3 direction, glm::vec3 desiredUp) {
 
     // Apply them
     return rot2 * rot1; // remember, in reverse order.
+}
+
+void splineMeshes(Spline &s, std::vector<glm::vec3>& splinePoints, std::vector<glm::vec3>& distanceVec, int amount) {
+
+    for (int i = 0; i < amount; i++) {
+
+        //glm::vec3 SplinePoint = Spline::Hermite(calcPoints[3], calcPoints[0], calcPoints[1], calcPoints[2], i / (float) amount);
+        glm::vec3 SplinePoint = s.Evaluate(i / (float)amount);
+
+        splinePoints.push_back(SplinePoint);
+    }
+
+    
+    int i;
+    for (i = 0; i < amount - 1; i++) {
+        distanceVec.push_back(glm::normalize(splinePoints[i + 1] - splinePoints[i]));
+    }
+    distanceVec.push_back(-1.0f * distanceVec[amount - 2]);
 }
