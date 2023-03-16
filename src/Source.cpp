@@ -103,7 +103,8 @@ int main() {
     //glm::vec3 p2(5, 0, -5);
     //glm::vec3 p3(-5, 5, 5);
 
-    int amount = 100;
+    int amount = 100 * (initialControlPoints.size() - 1);
+    int initialAmount = amount;
 
     std::vector<glm::vec3> splinePoints;
     std::vector<glm::vec3> distanceVec;
@@ -171,7 +172,7 @@ int main() {
             }
             std::cout << randx << " " << randy << " " << randz << std::endl;
             if (success) {
-                amount += 25;
+                amount += initialAmount / 4;
                 splinePoints.clear();
                 distanceVec.clear();
                 splineMeshes(s, splinePoints, distanceVec, amount);
@@ -308,10 +309,13 @@ int main() {
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-        lightCubeShader.setVec4("customColor", glm::vec4(1, 0, 0, 1));
-        for (int i = 0; i < s.GetControlPoints().size(); i++) {
+        std::vector<glm::vec3> drawPoints = s.GetControlPoints();
+        for (int i = 0; i < drawPoints.size(); i++) {
+            float maxDim = glm::max(glm::max(drawPoints[i].x, drawPoints[i].y), drawPoints[i].z);
+            lightCubeShader.setVec4("customColor", glm::vec4(drawPoints[i].x / maxDim, drawPoints[i].y / maxDim, drawPoints[i].z / maxDim, 1));
+
             model = glm::mat4(1.0f);
-            model = glm::translate(model, s.GetControlPoints()[i]);
+            model = glm::translate(model, drawPoints[i]);
             model = glm::scale(model, glm::vec3(0.1f)); // a smaller cube
             lightCubeShader.setMat4("model", model);
 
