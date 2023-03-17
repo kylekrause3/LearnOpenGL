@@ -35,15 +35,24 @@ public:
         for (unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].Draw(shader);
     }
+
+    float* getDimensions() {
+        return dimensions;
+    }
 private:
     // model data
-    std::vector<Mesh> meshes;
-    std::string directory;
+    std::vector<Mesh>    meshes;
+    std::string          directory;
     std::vector<Texture> textures_loaded;
+
+    float maxPos[3];
+    float minPos[3];
+    float dimensions[3];
 
     void loadModel(std::string path);
     void processNode(aiNode* node, const aiScene* scene);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
     std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
     unsigned int TextureFromFile(const char* path, const std::string& directory);
+    void findExtremes(glm::vec3 position);
 };

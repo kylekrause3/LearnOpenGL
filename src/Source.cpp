@@ -66,6 +66,11 @@ int main() {
     Model backpack("../3dModels/backpack/backpack.obj");
     Model Neon("../3dModels/Neon/Neon.fbx");
 
+    float* NeonDims = Neon.getDimensions();
+
+    // x: 0.0158436 y: 0.0237116 z: 0.0158436
+    std::cout << "x: " << NeonDims[0] << "\ty: " << NeonDims[1] << "\tz: " << NeonDims[0] << std::endl;
+    
     // tell lighting frag shader that TEXTURE0 is diffuse, TEXTURE1 is ambient
     int cubeDiffLoc = 1;
     int cubeSpecLoc = 0;
@@ -103,7 +108,7 @@ int main() {
     //glm::vec3 p2(5, 0, -5);
     //glm::vec3 p3(-5, 5, 5);
 
-    int amount = 100 * (initialControlPoints.size() - 1);
+    int amount = 25 * (initialControlPoints.size() - 1);
     int initialAmount = amount;
 
     std::vector<glm::vec3> splinePoints;
@@ -111,7 +116,7 @@ int main() {
 
     splineMeshes(s, splinePoints, distanceVec, amount);
 
-
+    NeonDims[1] = 0.119543;
 
     glm::vec3 cubePositions[] = {
         glm::vec3(2.0f,  2.0f,  2.0f),
@@ -126,7 +131,11 @@ int main() {
         glm::vec3(-2.6f,  1.0f, -1.5f)
     };
 
-
+    std::vector<glm::vec3> polePositions = {
+        glm::vec3(5,  0,  5),
+        glm::vec3(5,  NeonDims[1] + 0.01,  5),
+        glm::vec3(5,  NeonDims[1] + NeonDims[1] + 0.02,  5),
+    };
     
 
 
@@ -309,6 +318,7 @@ int main() {
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
+        // control points
         std::vector<glm::vec3> drawPoints = s.GetControlPoints();
         for (int i = 0; i < drawPoints.size(); i++) {
             float maxDim = glm::max(glm::max(drawPoints[i].x, drawPoints[i].y), drawPoints[i].z);
@@ -321,8 +331,23 @@ int main() {
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+
+
+        modelShader.use();
+        modelShader.setVec4("customColor", glm::vec4(1, 1, 1.0f, 1.0f));
+        for (int i = 0; i < polePositions.size(); i++) {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, polePositions[i]);
+
+            model = glm::rotate(model, PI / 2, glm::vec3(1, 0, 0 ));
+
+            modelShader.setMat4("model", model);
+
+            Neon.Draw(modelShader);
+        }
         
         lightCubeShader.setVec4("customColor", glm::vec4(0, 0, 1, 0));
+        modelShader.setVec4("customColor", glm::vec4(0, 0, 0, 0));
 
 
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe
