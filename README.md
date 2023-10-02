@@ -1,11 +1,11 @@
 # LearnOpenGL
 
-File structure should be:
+File structure should be:\
 ./LearnOpenGL/ (this repo)\
 ./include/\
 ./lib/\
 ./3dModels/\
-As outlined in the project settings (in VS: *Project->Properties->VC++ Directories* and *Project->Properties->Linker->Input*)\
+As outlined in the project settings (in VS: *Project->Properties->VC++ Directories* and *Project->Properties->Linker->Input*)
 
 OpenGL 3.3\
 https://learnopengl.com/
@@ -40,3 +40,10 @@ https://assimp.org/
 https://glm.g-truc.net/0.9.9/
 - **do not build**
 - put glm/glm/ (the folder with all of the header .hpp files) into ./include/ 
+
+## 3d Models
+https://learnopengl.com/data/models/backpack.zip
+- put contents in ./3dModels/backpack/
+
+https://github.com/superg3m/LearningOpenGL/blob/master/Resources/Neon.fbx
+- put in ./3dModels/Neon/ (create folder)
