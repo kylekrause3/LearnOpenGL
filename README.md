@@ -6,11 +6,12 @@ https://learnopengl.com/
 
 https://github.com/glfw
 
-https://glad.dav1d.de/
+https://github.com/Dav1dde/glad
 
 https://freetype.org/
 
 https://assimp.org/
 
+https://glm.g-truc.net/0.9.9/
 
 all code files are in the \src\ folder
