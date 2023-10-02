@@ -1,10 +1,10 @@
 # LearnOpenGL
 
 File structure should be:
-| ./LearnOpenGL/ (this repo) |
-| ./include/ |
-| ./lib/ |
-| ./3dModels/ |
+./LearnOpenGL/ (this repo) 
+./include/ 
+./lib/ 
+./3dModels/ 
 As outlined in the project settings (in VS: *Project->Properties->VC++ Directories* and *Project->Properties->Linker->Input*)
 
 OpenGL 3.3
