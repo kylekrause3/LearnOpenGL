@@ -19,7 +19,7 @@ https://github.com/glfw
 
 https://github.com/Dav1dde/glad
 - If the webservice is unavailable, Compile with CMake, build with Visual Studio
-- put the glad and KHR include folders in the ./include/ folder
+- put the glad/ and KHR/ include folders in the ./include/ folder
 - put *glad.c* into the ./LearnOpenGL/src/ folder if it doesn't already exist.
 
 https://freetype.org/
