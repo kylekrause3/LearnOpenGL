@@ -1,8 +1,9 @@
 #include <./src/Source.h>
 
 // settings
-const unsigned int SCR_WIDTH    = 800;
-const unsigned int SCR_HEIGHT   = 800;
+const unsigned int SCR_WIDTH    = 800 * 2;
+const unsigned int SCR_HEIGHT   = 800 * 2;
+const bool DRAW_SPLINE            = true;
 
 
 // timing
@@ -167,7 +168,7 @@ int main() {
         ImGui::Text("This is some useful text.");
 
         srand(currentTime);
-        if (ImGui::Button("Add Spline Points")) {
+        if (ImGui::Button("Add Spline Points") & DRAW_SPLINE) {
             int randx = rand() % 5 + 1;
             int randy = rand() % 5 + 1;
             int randz = rand() % 5 + 1;
@@ -247,39 +248,42 @@ int main() {
         backpack.Draw(modelShader);
     
         // draw the Neons
-        modelShader.use();
-        modelShader.setVec4("customColor", glm::vec4(0.6666f, 0.4666f, 1.0f, 1.0f));
-        for (int i = 0; i < splinePoints.size(); i++) {
-            model = glm::mat4(1.0f);
+        if (DRAW_SPLINE == true) {
+            modelShader.use();
+            modelShader.setVec4("customColor", glm::vec4(0.6666f, 0.4666f, 1.0f, 1.0f));
+            for (int i = 0; i < splinePoints.size(); i++) {
+                model = glm::mat4(1.0f);
 
 
 
-            model = glm::translate(model, splinePoints[i]);
-            //model = glm::rotate(model, PI / 2, glm::vec3(0, 0, 1));
-            float x = distanceVec[i].x;
-            float y = distanceVec[i].y;
-            float z = distanceVec[i].z;
+                model = glm::translate(model, splinePoints[i]);
+                //model = glm::rotate(model, PI / 2, glm::vec3(0, 0, 1));
+                float x = distanceVec[i].x;
+                float y = distanceVec[i].y;
+                float z = distanceVec[i].z;
 
-            //lastQuat = glm::radians(lastQuat);
+                //lastQuat = glm::radians(lastQuat);
 
-            glm::vec3 toQuat(atan(y / z), atan(z / x), atan(y / x));
-            toQuat = abs(toQuat);
-            toQuat = glm::normalize(toQuat);
-            glm::quat quat = LookAt(distanceVec[i], WORLD_UP);
+                glm::vec3 toQuat(atan(y / z), atan(z / x), atan(y / x));
+                toQuat = abs(toQuat);
+                toQuat = glm::normalize(toQuat);
+                glm::quat quat = LookAt(distanceVec[i], WORLD_UP);
 
-            glm::mat4 RotationMatrix = glm::toMat4(quat);
-            model = model * RotationMatrix;
-            //model = glm::rotate(model, rots[i].y, glm::vec3(0, 0, 1));
-            //model = glm::rotate(model, rots[i].z, glm::vec3(1, 0, 0));
+                glm::mat4 RotationMatrix = glm::toMat4(quat);
+                model = model * RotationMatrix;
+                //model = glm::rotate(model, rots[i].y, glm::vec3(0, 0, 1));
+                //model = glm::rotate(model, rots[i].z, glm::vec3(1, 0, 0));
 
-            //model = glm::scale(model, glm::vec3(0.5f));	// it's a bit too big for our scene, so scale it down
+                //model = glm::scale(model, glm::vec3(0.5f));	// it's a bit too big for our scene, so scale it down
 
 
-            modelShader.setMat4("model", model);
-            Neon.Draw(modelShader);
+                modelShader.setMat4("model", model);
+                Neon.Draw(modelShader);
 
+            }
+            modelShader.setVec4("customColor", glm::vec4(0.6666f, 0.4666f, 1.0f, 0.0f));
         }
-        modelShader.setVec4("customColor", glm::vec4(0.6666f, 0.4666f, 1.0f, 0.0f));
+        
         
 
         // draw non model cubes
