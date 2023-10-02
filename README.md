@@ -35,4 +35,4 @@ https://assimp.org/
 
 https://glm.g-truc.net/0.9.9/
 - **do not build**
-- Copy the glm/ folder into ./include/ (the folder with all of the header .hpp files)
+- Copy the glm/glm/ folder into ./include/ (the folder with all of the header .hpp files)
