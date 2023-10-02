@@ -9,7 +9,7 @@ As outlined in the project settings (in VS: *Project->Properties->VC++ Directori
 OpenGL 3.3
 https://learnopengl.com/
 
-##Dependencies
+## Dependencies
 Notes are provided for manual building with CMake and Visual Studio.
 
 https://github.com/glfw
