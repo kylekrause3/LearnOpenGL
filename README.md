@@ -24,6 +24,7 @@ https://github.com/Dav1dde/glad
 
 https://freetype.org/
 - Compile with CMake, build with Visual Studio
+- put the [freetype]/include/freetype/ folder in the project ./include/ folder
 - put *ft2build.h* in the ./include/ folder
 -   "Due to how FreeType is developed (at least at the time of this writing), you cannot put their header files in a new directory; they should be located at the root of your include directories."
 - put *freetype.lib* in the ./lib/ folder
