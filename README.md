@@ -15,7 +15,7 @@ Notes are provided for manual building with CMake and Visual Studio.
 https://github.com/glfw
 - compile with CMake, build with Visual Studio
 - put *glfw3.lib* in the ./lib/ foler
-- put *glfw3.h* in the ./include/GLFW/ folder (if it doesn't exist then make it)
+- put *glfw3.h* and *glfw3native.h* in the ./include/GLFW/ folder (if it doesn't exist then make it)
 
 https://github.com/Dav1dde/glad
 - If the webservice is unavailable, Compile with CMake, build with Visual Studio
@@ -34,6 +34,7 @@ https://assimp.org/
 - compile with CMake, build with Visual Studio
 - put *assimp-vc143-mtd.lib* in the ./lib/ folder
 - put *assimp-vc143-mtd.dll* in the ./LearnOpenGL/ folder
+- put *Config.h* from the build's include folder in the ./includes/assimp/ folder
 
 https://glm.g-truc.net/0.9.9/
 - **do not build**
