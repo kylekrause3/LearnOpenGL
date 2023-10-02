@@ -5,7 +5,8 @@ File structure should be:\
 ./include/\
 ./lib/\
 ./3dModels/\
-As outlined in the project settings (in VS: *Project->Properties->VC++ Directories* and *Project->Properties->Linker->Input*)
+As outlined in the project settings\
+(in VS: *Project->Properties->VC++ Directories* and *Project->Properties->Linker->Input*)
 
 OpenGL 3.3\
 https://learnopengl.com/
