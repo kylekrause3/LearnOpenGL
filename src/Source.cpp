@@ -20,11 +20,22 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 bool flashlight_on = false;
 
+bool W, A, S, D, SHIFT;
+
 glm::vec3 pointLightPositions[] = {
         glm::vec3(1, -1, -1.3),
         //glm::vec3(1.5, .75, 1.5),
         glm::vec3(-1.2f, 0.8f, 0),
         glm::vec3(1.2f, 0.0f, 0),
+};
+
+std::vector<glm::vec3> initialControlPoints = {
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(2.0f, 2.0f, 1.0f),
+        glm::vec3(4.0f, -2.0f, 2.0f),
+        glm::vec3(6.0f, 2.0f, 3.0f),
+        glm::vec3(8.0f, 4.0f, 4.0f),
+        glm::vec3(10.0f, -4.0f, 5.0f),
 };
 
 bool use_mouse = true;
@@ -85,14 +96,7 @@ int main() {
 
     
 
-    std::vector<glm::vec3> initialControlPoints = {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(2.0f, 2.0f, 1.0f),
-        glm::vec3(4.0f, -2.0f, 2.0f),
-        glm::vec3(6.0f, 2.0f, 3.0f),
-        glm::vec3(8.0f, 4.0f, 4.0f),
-        glm::vec3(10.0f, -4.0f, 5.0f),
-    };
+    
     Spline s(initialControlPoints, Spline::SplineType::CatmullRomSpline);
     //points[0] = glm::vec3(2, 0, 0);
     //points[1] = glm::vec3(4, 2, 1);
@@ -188,6 +192,11 @@ int main() {
                 splineMeshes(s, splinePoints, distanceVec, amount);
             }
         }
+        if (ImGui::Button("Evaluate Spline Points") & DRAW_SPLINE) {
+			splinePoints.clear();
+			distanceVec.clear();
+			splineMeshes(s, splinePoints, distanceVec, amount);
+        }
 
 
         modelShader.use();
@@ -249,6 +258,33 @@ int main() {
     
         // draw the Neons
         if (DRAW_SPLINE == true) {
+            int alterIndex = 3;
+            float alterSpeed = deltaTime;
+            bool splineAltered = false;
+            if(W && SHIFT) {
+				s.ChangeControlPoint(alterIndex, WORLD_FORWARD, alterSpeed);
+                splineAltered = true;
+			}
+            if (S && SHIFT) {
+                s.ChangeControlPoint(alterIndex, WORLD_BACKWARD, alterSpeed);
+                splineAltered = true;
+            }
+            if (A && SHIFT) {
+				s.ChangeControlPoint(alterIndex, WORLD_LEFT, alterSpeed);
+                splineAltered = true;
+			}
+            if (D && SHIFT) {
+                s.ChangeControlPoint(alterIndex, WORLD_RIGHT, alterSpeed);
+                splineAltered = true;
+            }
+            if (splineAltered) {
+                splinePoints.clear();
+                distanceVec.clear();
+                splineMeshes(s, splinePoints, distanceVec, amount);
+                splineAltered = false;
+            }
+
+
             modelShader.use();
             modelShader.setVec4("customColor", glm::vec4(0.6666f, 0.4666f, 1.0f, 1.0f));
             for (int i = 0; i < splinePoints.size(); i++) {
@@ -418,25 +454,46 @@ void process_input(GLFWwindow* window) {
     }
 
     if (W_pressed) {
+        W = true;
         camera.ProcessKeyboard(FORWARD, deltaTime);
     }
+    else {
+		W = false;
+	}
     if (S_pressed) {
+        S = true;
         camera.ProcessKeyboard(BACKWARD, deltaTime);
     }
+    else {
+        S = false;
+    }
     if (A_pressed) {
+        A = true;
         camera.ProcessKeyboard(LEFT, deltaTime);
     }
+    else {
+        A = false;
+    }
     if (D_pressed) {
+        D = true;
         camera.ProcessKeyboard(RIGHT, deltaTime);
     }
+    else {
+        D = false;
+    }
+    if(LSHIFT_pressed) {
+        SHIFT = true;
+        camera.ProcessKeyboard(MODIFIER, deltaTime);
+    }
+    else{
+        SHIFT = false;
+	}
+    
     if (UP_pressed || SPACE_pressed) {
         camera.ProcessKeyboard(UP, deltaTime);
     }
     if (DOWN_pressed || LCTRL_pressed) {
         camera.ProcessKeyboard(DOWN, deltaTime);
-    }
-    if (LSHIFT_pressed) {
-        camera.ProcessKeyboard(MODIFIER, deltaTime);
     }
 
     if (F_pressed) {
@@ -745,6 +802,7 @@ glm::quat LookAt(glm::vec3 direction, glm::vec3 desiredUp) {
     return rot2 * rot1; // remember, in reverse order.
 }
 
+// TODO: Change this to return vector<vec3> for spline points
 void splineMeshes(Spline &s, std::vector<glm::vec3>& splinePoints, std::vector<glm::vec3>& distanceVec, int amount) {
 
     for (int i = 0; i < amount; i++) {

@@ -28,6 +28,10 @@ public:
         return false;
     }
 
+    void ChangeControlPoint(int index, const glm::vec3& axis, float amount) {
+		this->controlPoints[index] += axis * amount;
+	}
+
     std::vector<glm::vec3> GetControlPoints() {
         return controlPoints;
     }
