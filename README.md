@@ -19,10 +19,12 @@ https://github.com/glfw
 - put *glfw3.lib* in the ./lib/ foler
 - put *glfw3.h* and *glfw3native.h* in the ./include/GLFW/ folder (if it doesn't exist then make it)
 
-https://github.com/Dav1dde/glad
-- If the webservice is unavailable, Compile with CMake, build with Visual Studio
+https://github.com/Dav1dde/glad/tree/master
+- If the [webservice](https://glad.dav1d.de/) is unavailable, Compile with CMake, build with Visual Studio
+- If the webservice is availaible, "make sure the language is set to C++, and in the API section select an OpenGL version of at least 3.3 (which is what we'll be using; higher versions are fine as well). Also make sure the profile is set to Core and that the Generate a loader option is ticked... and click Generate to produce the resulting library files."
 - put the glad/ and KHR/ include folders in the ./include/ folder
 - put *glad.c* into the ./LearnOpenGL/src/ folder if it doesn't already exist.
+- Make sure you choose glad 1 not glad 2
 
 https://freetype.org/
 - compile with CMake, build with Visual Studio
