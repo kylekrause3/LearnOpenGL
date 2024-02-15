@@ -26,14 +26,14 @@ https://github.com/Dav1dde/glad/tree/master
 - put *glad.c* into the ./LearnOpenGL/src/ folder if it doesn't already exist.
 - Make sure you choose glad 1 not glad 2
 
-https://freetype.org/
+https://freetype.org/ (freetype2)
 - compile with CMake, build with Visual Studio
 - put the [freetype]/include/freetype/ folder in the project ./include/ folder
 - put *ft2build.h* in the ./include/ folder
 -   "Due to how FreeType is developed (at least at the time of this writing), you cannot put their header files in a new directory; they should be located at the root of your include directories."
 - put *freetype.lib* in the ./lib/ folder
 
-https://assimp.org/
+https://github.com/assimp/assimp/blob/master/Build.md
 - put the raw includes/assimp/ (the folder with all of the header .hpp files) folder in in the ./includes/ folder
 - compile with CMake, build with Visual Studio
 - put *assimp-vc143-mtd.lib* in the ./lib/ folder
