@@ -27,7 +27,7 @@ https://github.com/Dav1dde/glad/tree/master
 - Make sure you choose glad 1 not glad 2
 
 https://freetype.org/ (freetype2)
-- compile with CMake, build with Visual Studio
+- go into builds/windows/vc2010/freetype.sln and build freetype.sln
 - put the [freetype]/include/freetype/ folder in the project ./include/ folder
 - put *ft2build.h* in the ./include/ folder
 -   "Due to how FreeType is developed (at least at the time of this writing), you cannot put their header files in a new directory; they should be located at the root of your include directories."
