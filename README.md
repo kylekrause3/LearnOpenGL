@@ -38,7 +38,7 @@ https://github.com/assimp/assimp/blob/master/Build.md
 - compile with CMake, build with Visual Studio
 - put *assimp-vc143-mtd.lib* in the ./lib/ folder
 - put *assimp-vc143-mtd.dll* in the ./LearnOpenGL/ folder
-- put *Config.h* from the build's include folder in the ./includes/assimp/ folder
+- put *Config.h* from the build's include folder in the ./include/assimp/ folder
 
 https://glm.g-truc.net/0.9.9/
 - **do not build**
