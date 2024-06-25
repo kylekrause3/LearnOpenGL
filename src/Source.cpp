@@ -283,6 +283,7 @@ int main() {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture2);
         glBindVertexArray(VAO);
+
         for (int i = 0; i < sizeof(cubePositions) / sizeof(cubePositions[0]); i++) {
             model = glm::mat4(1.0f);
             model = glm::translate(model, cubePositions[i]);
@@ -358,8 +359,7 @@ bool I_pressed, J_pressed, K_pressed, L_pressed;
 bool P_pressed, SEMICOLON_pressed;
 bool C_pressed;
 
-bool F_down = true;
-bool C_down = true;
+
 
 void process_input(GLFWwindow* window) {
     ESC_pressed         = glfwGetKey(window, GLFW_KEY_ESCAPE)       == GLFW_PRESS;
@@ -380,6 +380,9 @@ void process_input(GLFWwindow* window) {
     P_pressed           = glfwGetKey(window, GLFW_KEY_P)            == GLFW_PRESS;
     SEMICOLON_pressed   = glfwGetKey(window, GLFW_KEY_SEMICOLON)    == GLFW_PRESS;
     C_pressed           = glfwGetKey(window, GLFW_KEY_C)            == GLFW_PRESS;
+
+    static bool F_down = true;
+    static bool C_down = true;
 
     int lightCubeIndex = 0;
     float lightCubeMoveSpeed = 1.0f * deltaTime;
@@ -477,7 +480,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
         float sensitivity = 0.5f;
         xoffset *= sensitivity;
         yoffset *= sensitivity;
-
+        
         camera.ProcessMouseMovement(xoffset, yoffset);
     }
 }
@@ -653,7 +656,7 @@ float magnitude(glm::vec3 vector) {
     return sqrt(result);
 }
 
-// source
+// adapted from
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/
 // Returns a quaternion such that q*start = dest
 glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest) {
