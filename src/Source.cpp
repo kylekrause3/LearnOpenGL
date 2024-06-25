@@ -1,8 +1,9 @@
 #include <./src/Source.h>
 
 // settings
-const unsigned int SCR_WIDTH    = 800;
-const unsigned int SCR_HEIGHT   = 800;
+const unsigned int SCR_WIDTH    = 800 * 2;
+const unsigned int SCR_HEIGHT   = 800 * 2;
+const bool DRAW_SPLINE            = true;
 
 
 // timing
@@ -19,11 +20,22 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 bool flashlight_on = false;
 
+bool W, A, S, D, SHIFT;
+
 glm::vec3 pointLightPositions[] = {
         glm::vec3(1, -1, -1.3),
         //glm::vec3(1.5, .75, 1.5),
         glm::vec3(-1.2f, 0.8f, 0),
         glm::vec3(1.2f, 0.0f, 0),
+};
+
+std::vector<glm::vec3> initialControlPoints = {
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(2.0f, 2.0f, 1.0f),
+        glm::vec3(4.0f, -2.0f, 2.0f),
+        glm::vec3(6.0f, 2.0f, 3.0f),
+        glm::vec3(8.0f, 4.0f, 4.0f),
+        glm::vec3(10.0f, -4.0f, 5.0f),
 };
 
 bool use_mouse = true;
@@ -66,6 +78,11 @@ int main() {
     Model backpack("../3dModels/backpack/backpack.obj");
     Model Neon("../3dModels/Neon/Neon.fbx");
 
+    float* NeonDims = Neon.getDimensions();
+
+    // x: 0.0158436 y: 0.0237116 z: 0.0158436
+    std::cout << "x: " << NeonDims[0] << "\ty: " << NeonDims[1] << "\tz: " << NeonDims[0] << std::endl;
+    
     // tell lighting frag shader that TEXTURE0 is diffuse, TEXTURE1 is ambient
     int cubeDiffLoc = 1;
     int cubeSpecLoc = 0;
@@ -79,14 +96,7 @@ int main() {
 
     
 
-    std::vector<glm::vec3> initialControlPoints = {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(2.0f, 2.0f, 1.0f),
-        glm::vec3(4.0f, -2.0f, 2.0f),
-        glm::vec3(6.0f, 2.0f, 3.0f),
-        glm::vec3(8.0f, 4.0f, 4.0f),
-        glm::vec3(10.0f, -4.0f, 5.0f),
-    };
+    
     Spline s(initialControlPoints, Spline::SplineType::CatmullRomSpline);
     //points[0] = glm::vec3(2, 0, 0);
     //points[1] = glm::vec3(4, 2, 1);
@@ -103,7 +113,7 @@ int main() {
     //glm::vec3 p2(5, 0, -5);
     //glm::vec3 p3(-5, 5, 5);
 
-    int amount = 100 * (initialControlPoints.size() - 1);
+    int amount = 25 * (initialControlPoints.size() - 1);
     int initialAmount = amount;
 
     std::vector<glm::vec3> splinePoints;
@@ -111,7 +121,7 @@ int main() {
 
     splineMeshes(s, splinePoints, distanceVec, amount);
 
-
+    NeonDims[1] = 0.119543;
 
     glm::vec3 cubePositions[] = {
         glm::vec3(2.0f,  2.0f,  2.0f),
@@ -126,7 +136,11 @@ int main() {
         glm::vec3(-2.6f,  1.0f, -1.5f)
     };
 
-
+    std::vector<glm::vec3> polePositions = {
+        glm::vec3(5,  0,  5),
+        glm::vec3(5,  NeonDims[1] + 0.01,  5),
+        glm::vec3(5,  NeonDims[1] + NeonDims[1] + 0.02,  5),
+    };
     
 
 
@@ -158,7 +172,7 @@ int main() {
         ImGui::Text("This is some useful text.");
 
         srand(currentTime);
-        if (ImGui::Button("Add Spline Points")) {
+        if (ImGui::Button("Add Spline Points") & DRAW_SPLINE) {
             int randx = rand() % 5 + 1;
             int randy = rand() % 5 + 1;
             int randz = rand() % 5 + 1;
@@ -177,6 +191,11 @@ int main() {
                 distanceVec.clear();
                 splineMeshes(s, splinePoints, distanceVec, amount);
             }
+        }
+        if (ImGui::Button("Evaluate Spline Points") & DRAW_SPLINE) {
+			splinePoints.clear();
+			distanceVec.clear();
+			splineMeshes(s, splinePoints, distanceVec, amount);
         }
 
 
@@ -238,39 +257,69 @@ int main() {
         backpack.Draw(modelShader);
     
         // draw the Neons
-        modelShader.use();
-        modelShader.setVec4("customColor", glm::vec4(0.6666f, 0.4666f, 1.0f, 1.0f));
-        for (int i = 0; i < splinePoints.size(); i++) {
-            model = glm::mat4(1.0f);
+        if (DRAW_SPLINE == true) {
+            int alterIndex = 3;
+            float alterSpeed = deltaTime;
+            bool splineAltered = false;
+            if(W && SHIFT) {
+				s.ChangeControlPoint(alterIndex, WORLD_FORWARD, alterSpeed);
+                splineAltered = true;
+			}
+            if (S && SHIFT) {
+                s.ChangeControlPoint(alterIndex, WORLD_BACKWARD, alterSpeed);
+                splineAltered = true;
+            }
+            if (A && SHIFT) {
+				s.ChangeControlPoint(alterIndex, WORLD_LEFT, alterSpeed);
+                splineAltered = true;
+			}
+            if (D && SHIFT) {
+                s.ChangeControlPoint(alterIndex, WORLD_RIGHT, alterSpeed);
+                splineAltered = true;
+            }
+            if (splineAltered) {
+                splinePoints.clear();
+                distanceVec.clear();
+                splineMeshes(s, splinePoints, distanceVec, amount);
+                splineAltered = false;
+            }
+
+
+            modelShader.use();
+            modelShader.setVec4("customColor", glm::vec4(0.6666f, 0.4666f, 1.0f, 1.0f));
+            for (int i = 0; i < splinePoints.size(); i++) {
+                model = glm::mat4(1.0f);
 
 
 
-            model = glm::translate(model, splinePoints[i]);
-            //model = glm::rotate(model, PI / 2, glm::vec3(0, 0, 1));
-            float x = distanceVec[i].x;
-            float y = distanceVec[i].y;
-            float z = distanceVec[i].z;
+                model = glm::translate(model, splinePoints[i]);
+                //model = glm::rotate(model, PI / 2, glm::vec3(0, 0, 1));
+                float x = distanceVec[i].x;
+                float y = distanceVec[i].y;
+                float z = distanceVec[i].z;
 
-            //lastQuat = glm::radians(lastQuat);
+                //lastQuat = glm::radians(lastQuat);
 
-            glm::vec3 toQuat(atan(y / z), atan(z / x), atan(y / x));
-            toQuat = abs(toQuat);
-            toQuat = glm::normalize(toQuat);
-            glm::quat quat = LookAt(distanceVec[i], WORLD_UP);
+                glm::vec3 toQuat(atan(y / z), atan(z / x), atan(y / x));
+                toQuat = abs(toQuat);
+                toQuat = glm::normalize(toQuat);
+                glm::quat quat = LookAt(distanceVec[i], WORLD_UP);
 
-            glm::mat4 RotationMatrix = glm::toMat4(quat);
-            model = model * RotationMatrix;
-            //model = glm::rotate(model, rots[i].y, glm::vec3(0, 0, 1));
-            //model = glm::rotate(model, rots[i].z, glm::vec3(1, 0, 0));
+                glm::mat4 RotationMatrix = glm::toMat4(quat);
+                model = model * RotationMatrix;
+                //model = glm::rotate(model, rots[i].y, glm::vec3(0, 0, 1));
+                //model = glm::rotate(model, rots[i].z, glm::vec3(1, 0, 0));
 
-            //model = glm::scale(model, glm::vec3(0.5f));	// it's a bit too big for our scene, so scale it down
+                //model = glm::scale(model, glm::vec3(0.5f));	// it's a bit too big for our scene, so scale it down
 
 
-            modelShader.setMat4("model", model);
-            Neon.Draw(modelShader);
+                modelShader.setMat4("model", model);
+                Neon.Draw(modelShader);
 
+            }
+            modelShader.setVec4("customColor", glm::vec4(0.6666f, 0.4666f, 1.0f, 0.0f));
         }
-        modelShader.setVec4("customColor", glm::vec4(0.6666f, 0.4666f, 1.0f, 0.0f));
+        
         
 
         // draw non model cubes
@@ -310,6 +359,7 @@ int main() {
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
+        // control points
         std::vector<glm::vec3> drawPoints = s.GetControlPoints();
         for (int i = 0; i < drawPoints.size(); i++) {
             float maxDim = glm::max(glm::max(drawPoints[i].x, drawPoints[i].y), drawPoints[i].z);
@@ -322,8 +372,23 @@ int main() {
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+
+
+        modelShader.use();
+        modelShader.setVec4("customColor", glm::vec4(1, 1, 1.0f, 1.0f));
+        for (int i = 0; i < polePositions.size(); i++) {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, polePositions[i]);
+
+            model = glm::rotate(model, PI / 2, glm::vec3(1, 0, 0 ));
+
+            modelShader.setMat4("model", model);
+
+            Neon.Draw(modelShader);
+        }
         
         lightCubeShader.setVec4("customColor", glm::vec4(0, 0, 1, 0));
+        modelShader.setVec4("customColor", glm::vec4(0, 0, 0, 0));
 
 
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe
@@ -392,25 +457,46 @@ void process_input(GLFWwindow* window) {
     }
 
     if (W_pressed) {
+        W = true;
         camera.ProcessKeyboard(FORWARD, deltaTime);
     }
+    else {
+		W = false;
+	}
     if (S_pressed) {
+        S = true;
         camera.ProcessKeyboard(BACKWARD, deltaTime);
     }
+    else {
+        S = false;
+    }
     if (A_pressed) {
+        A = true;
         camera.ProcessKeyboard(LEFT, deltaTime);
     }
+    else {
+        A = false;
+    }
     if (D_pressed) {
+        D = true;
         camera.ProcessKeyboard(RIGHT, deltaTime);
     }
+    else {
+        D = false;
+    }
+    if(LSHIFT_pressed) {
+        SHIFT = true;
+        camera.ProcessKeyboard(MODIFIER, deltaTime);
+    }
+    else{
+        SHIFT = false;
+	}
+    
     if (UP_pressed || SPACE_pressed) {
         camera.ProcessKeyboard(UP, deltaTime);
     }
     if (DOWN_pressed || LCTRL_pressed) {
         camera.ProcessKeyboard(DOWN, deltaTime);
-    }
-    if (LSHIFT_pressed) {
-        camera.ProcessKeyboard(MODIFIER, deltaTime);
     }
 
     if (F_pressed) {
@@ -719,6 +805,7 @@ glm::quat LookAt(glm::vec3 direction, glm::vec3 desiredUp) {
     return rot2 * rot1; // remember, in reverse order.
 }
 
+// TODO: Change this to return vector<vec3> for spline points
 void splineMeshes(Spline &s, std::vector<glm::vec3>& splinePoints, std::vector<glm::vec3>& distanceVec, int amount) {
 
     for (int i = 0; i < amount; i++) {

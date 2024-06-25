@@ -59,6 +59,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         vector.y = mesh->mVertices[i].y;
         vector.z = mesh->mVertices[i].z;
         vertex.Position = vector;
+        findExtremes(vertex.Position);
 
         vector.x = mesh->mNormals[i].x;
         vector.y = mesh->mNormals[i].y;
@@ -165,4 +166,31 @@ unsigned int Model::TextureFromFile(const char* path, const std::string& directo
     }
 
     return textureID;
+}
+
+void Model::findExtremes(glm::vec3 position) {
+    if (position.x > maxPos[0]) {
+        maxPos[0] = position.x;
+    }
+    if (position.y > maxPos[1]) {
+        maxPos[1] = position.y;
+    }
+    if (position.z > maxPos[2]) {
+        maxPos[2] = position.z;
+    }
+
+    if (position.x < minPos[0]) {
+        maxPos[0] = position.x;
+    }
+    if (position.y < minPos[1]) {
+        maxPos[1] = position.y;
+    }
+    if (position.z < minPos[2]) {
+        maxPos[2] = position.z;
+    }
+
+
+    dimensions[0] = abs(maxPos[0] - minPos[0]);
+    dimensions[1] = abs(maxPos[1] - minPos[1]);
+    dimensions[2] = abs(maxPos[2] - minPos[2]);
 }
