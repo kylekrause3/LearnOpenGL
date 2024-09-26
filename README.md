@@ -1,4 +1,5 @@
 # LearnOpenGL
+![logl](https://github.com/kylekrause3/LearnOpenGL/blob/master/pictures/spline2.png)
 
 File structure should be:\
 ./LearnOpenGL/ (this repo)\
@@ -50,3 +51,8 @@ https://learnopengl.com/data/models/backpack.zip
 
 https://github.com/superg3m/LearningOpenGL/blob/master/Resources/Neon.fbx
 - put in ./3dModels/Neon/ (create folder)
+
+
+## Image Gallery
+![lighting](https://github.com/kylekrause3/LearnOpenGL/blob/master/pictures/lighting.png)
+![spline](https://github.com/kylekrause3/LearnOpenGL/blob/master/pictures/spline.png)
