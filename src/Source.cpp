@@ -1,9 +1,9 @@
 #include <./src/Source.h>
 
 // settings
-const unsigned int SCR_WIDTH    = 800 * 2;
-const unsigned int SCR_HEIGHT   = 800 * 2;
-const bool DRAW_SPLINE            = true;
+const unsigned int SCR_WIDTH    = 1200;
+const unsigned int SCR_HEIGHT   = 800;
+const bool DRAW_SPLINE = false;
 
 
 // timing
@@ -30,13 +30,15 @@ glm::vec3 pointLightPositions[] = {
 };
 
 std::vector<glm::vec3> initialControlPoints = {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(2.0f, 2.0f, 1.0f),
-        glm::vec3(4.0f, -2.0f, 2.0f),
-        glm::vec3(6.0f, 2.0f, 3.0f),
-        glm::vec3(8.0f, 4.0f, 4.0f),
-        glm::vec3(10.0f, -4.0f, 5.0f),
+    glm::vec3(1.0f, 0.0f, 0.0f),   // Starting point
+    glm::vec3(1.0f, 1.0f, 1.0f),   // Quarter turn with a lift
+    glm::vec3(0.0f, 2.0f, 2.0f),  // Half turn
+    glm::vec3(-1.0f, 0.0f, 3.0f),   // Three-quarter turn
+    glm::vec3(-1.0f, -1.0f, 4.0f),   // Full turn with height increase
+    glm::vec3(0.0f, 1.0f, 5.0f),   // Continue spiral motion
 };
+
+
 
 bool use_mouse = true;
 
@@ -76,6 +78,7 @@ int main() {
     Shader modelShader("./GLSL/lighting.vert", "./GLSL/lighting_multiple.frag");
 
     Model backpack("../3dModels/backpack/backpack.obj");
+    Model car("../3dModels/car/car.obj");
     Model Neon("../3dModels/Neon/Neon.fbx");
 
     float* NeonDims = Neon.getDimensions();
@@ -113,7 +116,7 @@ int main() {
     //glm::vec3 p2(5, 0, -5);
     //glm::vec3 p3(-5, 5, 5);
 
-    int amount = 25 * (initialControlPoints.size() - 1);
+    int amount = 50 * (initialControlPoints.size() - 1);
     int initialAmount = amount;
 
     std::vector<glm::vec3> splinePoints;
@@ -197,6 +200,12 @@ int main() {
 			distanceVec.clear();
 			splineMeshes(s, splinePoints, distanceVec, amount);
         }
+        if (ImGui::Button("Add amount") & DRAW_SPLINE) {
+            amount += initialAmount / 4;
+            splinePoints.clear();
+            distanceVec.clear();
+            splineMeshes(s, splinePoints, distanceVec, amount);
+        }
 
 
         modelShader.use();
@@ -255,6 +264,13 @@ int main() {
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         modelShader.setMat4("model", model);
         backpack.Draw(modelShader);
+
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, -10.0f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        modelShader.setMat4("model", model);
+        car.Draw(modelShader);
     
         // draw the Neons
         if (DRAW_SPLINE == true) {
@@ -289,7 +305,8 @@ int main() {
             modelShader.setVec4("customColor", glm::vec4(0.6666f, 0.4666f, 1.0f, 1.0f));
             for (int i = 0; i < splinePoints.size(); i++) {
                 model = glm::mat4(1.0f);
-
+                float ratio = i / (float)splinePoints.size();
+                modelShader.setVec4("customColor", glm::vec4(ratio, 1 - ratio, 1.0f, 1.0f));
 
 
                 model = glm::translate(model, splinePoints[i]);
@@ -318,6 +335,7 @@ int main() {
 
             }
             modelShader.setVec4("customColor", glm::vec4(0.6666f, 0.4666f, 1.0f, 0.0f));
+            
         }
         
         

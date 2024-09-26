@@ -72,3 +72,7 @@ const glm::vec3 attenuationCoefficients[] = {
 	glm::vec3(1.0f, 0.007f,	 0.0002f),
 	glm::vec3(1.0f, 0.0014f, 0.000007f),
 };
+
+float getRandomFloat() {
+	return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+}

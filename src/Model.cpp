@@ -110,6 +110,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
         {
             if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
             {
+                std::cout << "Texture loaded: " << str.C_Str() << std::endl;
                 textures.push_back(textures_loaded[j]);
                 skip = true;
                 break;
